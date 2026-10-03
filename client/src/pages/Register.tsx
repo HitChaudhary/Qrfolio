@@ -1,4 +1,4 @@
-import { Loader2 } from "lucide-react";
+import { ArrowRight, CheckCircle2, Loader2, Lock, Mail, User } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import AuthShell, { buttonClass, inputClass } from "../components/AuthShell";
@@ -20,7 +20,7 @@ export default function Register() {
     e.preventDefault();
     setError("");
     if (password.length < 8) {
-      setError("Password must be at least 8 characters");
+      setError("Password must be at least 8 characters long");
       return;
     }
     setSubmitting(true);
@@ -37,37 +37,86 @@ export default function Register() {
   return (
     <AuthShell
       title="Create your account"
-      subtitle="Set up your business QR in minutes."
+      subtitle="Launch your dynamic QrFolio page in less than 2 minutes."
       footer={
         <>
-          Already have an account?{" "}
-          <Link to="/login" className="font-medium text-slate-900 underline">
-            Log in
+          Already registered?{" "}
+          <Link to="/login" className="font-bold text-[#467359] hover:text-[#284737] underline transition-colors">
+            Sign in here
           </Link>
         </>
       }
     >
       <form onSubmit={onSubmit} className="space-y-4">
         <div>
-          <label htmlFor="name" className="mb-1 block text-sm font-medium">Name</label>
-          <input id="name" type="text" required autoComplete="name" className={inputClass}
-            value={name} onChange={(e) => setName(e.target.value)} />
+          <label htmlFor="name" className="mb-1.5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#467359]">
+            <User size={13} /> Full Name or Business Name
+          </label>
+          <input
+            id="name"
+            type="text"
+            required
+            autoComplete="name"
+            placeholder="e.g. Elena Vance"
+            className={inputClass}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
         </div>
+
         <div>
-          <label htmlFor="email" className="mb-1 block text-sm font-medium">Email</label>
-          <input id="email" type="email" required autoComplete="email" className={inputClass}
-            value={email} onChange={(e) => setEmail(e.target.value)} />
+          <label htmlFor="email" className="mb-1.5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#467359]">
+            <Mail size={13} /> Email Address
+          </label>
+          <input
+            id="email"
+            type="email"
+            required
+            autoComplete="email"
+            placeholder="elena@studio.com"
+            className={inputClass}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
         </div>
+
         <div>
-          <label htmlFor="password" className="mb-1 block text-sm font-medium">Password</label>
-          <input id="password" type="password" required minLength={8} autoComplete="new-password" className={inputClass}
-            value={password} onChange={(e) => setPassword(e.target.value)} />
-          <p className="mt-1 text-xs text-slate-500">At least 8 characters.</p>
+          <label htmlFor="password" className="mb-1.5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#467359]">
+            <Lock size={13} /> Password
+          </label>
+          <input
+            id="password"
+            type="password"
+            required
+            minLength={8}
+            autoComplete="new-password"
+            placeholder="Minimum 8 characters"
+            className={inputClass}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <div className="mt-1 flex items-center gap-1.5 text-[11px] text-[#70a087]">
+            <CheckCircle2 size={12} className={password.length >= 8 ? "text-[#69bd92]" : "text-[#a5afa9]"} />
+            <span>Must contain at least 8 characters</span>
+          </div>
         </div>
-        {error && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+
+        {error && (
+          <p role="alert" className="rounded-xl bg-red-50 border border-red-200 px-3.5 py-2.5 text-xs text-red-700 font-medium">
+            {error}
+          </p>
+        )}
+
         <button type="submit" disabled={submitting} className={buttonClass}>
-          {submitting && <Loader2 size={16} className="animate-spin" />}
-          Create account
+          {submitting ? (
+            <>
+              <Loader2 size={16} className="animate-spin" /> Creating your QrFolio...
+            </>
+          ) : (
+            <>
+              Get Started Free <ArrowRight size={16} />
+            </>
+          )}
         </button>
       </form>
     </AuthShell>

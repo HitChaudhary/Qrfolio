@@ -1,4 +1,4 @@
-import { ImagePlus, Loader2, Trash2 } from "lucide-react";
+import { ImagePlus, Loader2, Sparkles, Trash2, UploadCloud } from "lucide-react";
 import { useRef, useState, type ChangeEvent } from "react";
 import { api, getErrorMessage } from "../lib/api";
 import type { Business } from "../lib/types";
@@ -24,8 +24,8 @@ export default function LogoUploader({
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
-    if (!ALLOWED.includes(file.type)) return setError("Use a JPG, PNG or WEBP image");
-    if (file.size > MAX_BYTES) return setError("Image must be 2 MB or smaller");
+    if (!ALLOWED.includes(file.type)) return setError("Please upload a JPG, PNG, or WEBP image.");
+    if (file.size > MAX_BYTES) return setError("Image must be 2 MB or smaller.");
 
     setError("");
     setBusy(true);
@@ -36,7 +36,7 @@ export default function LogoUploader({
         timeout: 30000,
       });
       onChange(res.data.data.business);
-      toast.show("Logo updated");
+      toast.show("Logo uploaded successfully");
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
@@ -45,7 +45,7 @@ export default function LogoUploader({
   }
 
   async function onRemove() {
-    if (!window.confirm("Remove the logo?")) return;
+    if (!window.confirm("Are you sure you want to remove your brand logo?")) return;
     setError("");
     setBusy(true);
     try {
@@ -60,34 +60,61 @@ export default function LogoUploader({
   }
 
   return (
-    <div>
-      <div className="flex items-center gap-4">
-        <div className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-xl bg-slate-100 ring-1 ring-slate-200">
+    <div className="space-y-3">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+        {/* Logo preview box */}
+        <div className="relative flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-[#b7dbc4] bg-[#f0f3f0] transition-all group hover:border-[#69bd92]">
           {business.logoUrl ? (
-            <img src={business.logoUrl} alt="Business logo" crossOrigin="anonymous" className="h-full w-full object-cover" />
+            <img
+              src={business.logoUrl}
+              alt="Business logo"
+              crossOrigin="anonymous"
+              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            />
           ) : (
-            <ImagePlus className="text-slate-400" />
+            <div className="flex flex-col items-center justify-center text-[#70a087]">
+              <ImagePlus size={24} />
+              <span className="mt-1 text-[10px] font-medium text-[#70a087]">No logo</span>
+            </div>
           )}
           {busy && (
-            <div className="absolute inset-0 flex items-center justify-center bg-white/70">
-              <Loader2 className="animate-spin text-slate-600" />
+            <div className="absolute inset-0 flex items-center justify-center bg-[#284737]/60 backdrop-blur-xs">
+              <Loader2 className="animate-spin text-white" size={24} />
             </div>
           )}
         </div>
-        <div className="flex flex-wrap gap-2">
-          <button type="button" disabled={busy} onClick={() => inputRef.current?.click()} className={secondaryBtn}>
-            {business.logoUrl ? "Replace logo" : "Upload logo"}
-          </button>
-          {business.logoUrl && (
-            <button type="button" disabled={busy} onClick={onRemove} className={dangerBtn}>
-              <Trash2 size={16} /> Remove
+
+        {/* Upload & manage actions */}
+        <div className="flex-1 space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => inputRef.current?.click()}
+              className={secondaryBtn}
+            >
+              <UploadCloud size={16} />
+              {business.logoUrl ? "Replace Logo" : "Upload Brand Logo"}
             </button>
-          )}
+            {business.logoUrl && (
+              <button type="button" disabled={busy} onClick={onRemove} className={dangerBtn}>
+                <Trash2 size={16} /> Remove
+              </button>
+            )}
+          </div>
+          <p className="flex items-center gap-1.5 text-xs text-[#70a087]">
+            <Sparkles size={12} className="text-[#467359] shrink-0" />
+            Recommended: Square PNG/JPG up to 2MB. Logo appears in your QR center & bio header.
+          </p>
         </div>
         <input ref={inputRef} type="file" accept={ALLOWED.join(",")} onChange={onFile} className="hidden" />
       </div>
-      <p className="mt-2 text-xs text-slate-500">JPG, PNG or WEBP, up to 2 MB. A square image works best.</p>
-      {error && <p role="alert" className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+
+      {error && (
+        <p role="alert" className="rounded-xl bg-red-50 p-3 text-xs font-medium text-red-700 border border-red-200">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

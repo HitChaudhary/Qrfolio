@@ -6,7 +6,12 @@ import { signToken } from "../utils/token";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const publicUser = (u: IUser) => ({ id: u.id as string, name: u.name, email: u.email });
+const publicUser = (u: IUser) => ({
+  id: u.id as string,
+  name: u.name,
+  email: u.email,
+  role: u.role === "admin" ? "admin" : "user",
+});
 
 const fail = (res: Response, status: number, message: string) =>
   res.status(status).json({ success: false, message });
@@ -44,7 +49,10 @@ export async function login(req: Request, res: Response) {
   const user = await User.findOne({ email }).select("+passwordHash");
   const ok = user ? await bcrypt.compare(password, user.passwordHash) : false;
   if (!user || !ok) return fail(res, 401, "Invalid email or password");
+  // Checked after the password so wrong guesses can't probe account status
+  if (user.isActive === false) return fail(res, 403, "This account has been deactivated.");
 
+  await User.updateOne({ _id: user._id }, { $set: { lastLoginAt: new Date() } });
   res.json({ success: true, data: { token: signToken(user.id), user: publicUser(user) } });
 }
 

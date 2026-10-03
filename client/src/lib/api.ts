@@ -25,7 +25,9 @@ api.interceptors.response.use(
   (error) => {
     const url: string = error.config?.url ?? "";
     const isLoginCall = url.includes("/auth/login") || url.includes("/auth/register");
-    if (error.response?.status === 401 && !isLoginCall && getToken()) {
+    const status: number | undefined = error.response?.status;
+    const deactivated = status === 403 && /deactivated/i.test(String(error.response?.data?.message ?? ""));
+    if ((status === 401 || deactivated) && !isLoginCall && getToken()) {
       clearToken();
       window.dispatchEvent(new Event("auth:expired"));
     }

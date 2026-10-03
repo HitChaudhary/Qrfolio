@@ -16,6 +16,10 @@ export const env = {
   clientUrl: get("CLIENT_URL") || "http://localhost:5173",
   jwtSecret: get("JWT_SECRET"),
   analyticsTz: get("ANALYTICS_TIMEZONE") || "UTC",
+  // Only used by the create-admin script
+  adminEmail: get("ADMIN_EMAIL"),
+  adminPassword: process.env.ADMIN_PASSWORD ?? "",
+  adminName: get("ADMIN_NAME") || "Admin",
   cloudinary: {
     cloudName: get("CLOUDINARY_CLOUD_NAME"),
     apiKey: get("CLOUDINARY_API_KEY"),
