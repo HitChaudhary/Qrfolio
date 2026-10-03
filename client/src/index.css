@@ -5,3 +5,9 @@ body {
   background: #f8fafc;
   color: #0f172a;
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
