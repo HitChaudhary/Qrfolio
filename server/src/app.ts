@@ -20,6 +20,10 @@ app.use(express.json({ limit: "1mb" }));
 app.get("/api/health", (_req, res) => {
   res.json({ success: true, message: "API is running" });
 });
+// Root-level health check (Render / uptime monitors). No database or auth involved.
+app.get("/health", (_req, res) => {
+  res.json({ success: true, message: "QRFolio API is healthy" });
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/business", businessRoutes);
