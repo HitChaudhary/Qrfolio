@@ -26,6 +26,8 @@ export function serializeBusiness(b: BusinessDoc) {
       icon: l.icon,
       isActive: l.isActive,
       position: l.position,
+      reviewCategory: l.reviewCategory || "",
+      enableReviewAssistant: Boolean(l.enableReviewAssistant),
     }));
   return {
     id: b.id as string,
@@ -174,6 +176,8 @@ interface LinkValues {
   title: string;
   url: string;
   icon: string;
+  reviewCategory?: string;
+  enableReviewAssistant?: boolean;
 }
 
 function readLink(body: Body, existing?: LinkValues): { error: string } | { value: LinkValues } {
@@ -187,7 +191,24 @@ function readLink(body: Body, existing?: LinkValues): { error: string } | { valu
   const url = normalizeUrl(rawUrl, icon);
   if (!url) return { error: urlErrorMessage(icon) };
 
-  return { value: { title, url, icon } };
+  let reviewCategory = existing?.reviewCategory ?? "";
+  let enableReviewAssistant = existing?.enableReviewAssistant ?? false;
+
+  if (icon === "google-reviews") {
+    if (body.reviewCategory !== undefined) {
+      reviewCategory = String(body.reviewCategory).trim();
+    }
+    if (!reviewCategory) {
+      return { error: "Please select a business category for Google Reviews" };
+    }
+    if (body.enableReviewAssistant !== undefined) {
+      enableReviewAssistant = Boolean(body.enableReviewAssistant);
+    } else if (existing?.enableReviewAssistant === undefined) {
+      enableReviewAssistant = true;
+    }
+  }
+
+  return { value: { title, url, icon, reviewCategory, enableReviewAssistant } };
 }
 
 const respondWithBusiness = (res: Response, biz: BusinessDoc, status = 200) =>
@@ -215,12 +236,20 @@ export async function updateLink(req: AuthRequest, res: Response) {
   if (!link) return notFound(res, "Link");
 
   const body = (req.body ?? {}) as Body;
-  const parsed = readLink(body, { title: link.title, url: link.url, icon: link.icon });
+  const parsed = readLink(body, {
+    title: link.title,
+    url: link.url,
+    icon: link.icon,
+    reviewCategory: link.reviewCategory,
+    enableReviewAssistant: link.enableReviewAssistant,
+  });
   if ("error" in parsed) return fail(res, 400, parsed.error);
 
   link.title = parsed.value.title;
   link.url = parsed.value.url;
   link.icon = parsed.value.icon;
+  if (parsed.value.reviewCategory !== undefined) link.reviewCategory = parsed.value.reviewCategory;
+  if (parsed.value.enableReviewAssistant !== undefined) link.enableReviewAssistant = parsed.value.enableReviewAssistant;
   if (typeof body.isActive === "boolean") link.isActive = body.isActive;
   await biz.save();
   respondWithBusiness(res, biz);

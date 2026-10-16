@@ -34,5 +34,6 @@ export function normalizeUrl(raw: string, icon: string): string | null {
 export function urlErrorMessage(icon: string): string {
   if (icon === "phone") return "Enter a valid phone number, e.g. +919876543210";
   if (icon === "email") return "Enter a valid email address";
+  if (icon === "google-reviews") return "Enter a valid Google Review URL (e.g. https://g.page/r/.../review)";
   return "Enter a valid URL, e.g. https://example.com";
 }

@@ -284,6 +284,8 @@ export async function getBusiness(req: AuthRequest, res: Response) {
       isActive: l.isActive,
       position: l.position,
       clicks: l.clickCount ?? 0,
+      reviewCategory: l.reviewCategory || "",
+      enableReviewAssistant: Boolean(l.enableReviewAssistant),
     }));
 
   res.json({

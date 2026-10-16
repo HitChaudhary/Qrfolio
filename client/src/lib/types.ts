@@ -5,6 +5,8 @@ export interface BusinessLink {
   icon: string;
   isActive: boolean;
   position: number;
+  reviewCategory?: string;
+  enableReviewAssistant?: boolean;
 }
 
 export interface Business {
@@ -24,6 +26,8 @@ export interface PublicLink {
   title: string;
   url: string;
   icon: string;
+  reviewCategory?: string;
+  enableReviewAssistant?: boolean;
 }
 
 export interface PublicProfileData {

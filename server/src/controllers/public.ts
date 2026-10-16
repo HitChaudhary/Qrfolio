@@ -33,7 +33,14 @@ export async function getPublicProfile(req: Request, res: Response) {
       links: Array.from(biz.links)
         .filter((l) => l.isActive)
         .sort((a, b) => a.position - b.position)
-        .map((l) => ({ id: String(l._id), title: l.title, url: l.url, icon: l.icon })),
+        .map((l) => ({
+          id: String(l._id),
+          title: l.title,
+          url: l.url,
+          icon: l.icon,
+          reviewCategory: l.reviewCategory || "",
+          enableReviewAssistant: Boolean(l.enableReviewAssistant),
+        })),
     },
   });
 }

@@ -7,7 +7,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "create-admin": "tsx src/scripts/createAdmin.ts",
-    "create-admin:prod": "node dist/scripts/createAdmin.js"
+    "create-admin:prod": "node dist/scripts/createAdmin.js",
+    "test:review": "tsx tests/testGoogleReview.ts"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",

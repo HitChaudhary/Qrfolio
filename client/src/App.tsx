@@ -18,6 +18,7 @@ import NotFound from "./pages/NotFound";
 import PublicProfile from "./pages/PublicProfile";
 import QrCode from "./pages/QrCode";
 import Register from "./pages/Register";
+import ReviewAssistant from "./pages/ReviewAssistant";
 import Settings from "./pages/Settings";
 
 export default function App() {
@@ -59,6 +60,8 @@ export default function App() {
         <Route path="settings" element={<Settings />} />
       </Route>
       <Route path="/p/:slug" element={<PublicProfile />} />
+      <Route path="/p/:slug/review/:linkId" element={<ReviewAssistant />} />
+      <Route path="/p/:slug/review" element={<ReviewAssistant />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

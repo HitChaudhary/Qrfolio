@@ -7,6 +7,8 @@ export interface ILink {
   isActive: boolean;
   position: number;
   clickCount: number;
+  reviewCategory?: string;
+  enableReviewAssistant?: boolean;
 }
 
 export interface IBusiness {
@@ -31,6 +33,8 @@ const linkSchema = new Schema<ILink>({
   isActive: { type: Boolean, default: true },
   position: { type: Number, default: 0 },
   clickCount: { type: Number, default: 0 },
+  reviewCategory: { type: String, default: "", trim: true, maxlength: 60 },
+  enableReviewAssistant: { type: Boolean, default: false },
 });
 
 const businessSchema = new Schema<IBusiness>(

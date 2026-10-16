@@ -4,6 +4,7 @@ import {
   Link2,
   Pencil,
   Plus,
+  Sparkles,
   Trash2,
 } from "lucide-react";
 import { useState } from "react";
@@ -103,7 +104,12 @@ export default function Links() {
 
       {/* New Link Form */}
       {editing === "new" && (
-        <LinkForm onSubmit={submitNew} onCancel={() => setEditing(null)} />
+        <LinkForm
+          businessCategory={business.category}
+          businessName={business.businessName}
+          onSubmit={submitNew}
+          onCancel={() => setEditing(null)}
+        />
       )}
 
       {/* Empty State */}
@@ -130,6 +136,8 @@ export default function Links() {
               <li key={link.id}>
                 <LinkForm
                   initial={link}
+                  businessCategory={business.category}
+                  businessName={business.businessName}
                   onSubmit={(v) => submitEdit(link.id, v)}
                   onCancel={() => setEditing(null)}
                 />
@@ -175,8 +183,20 @@ export default function Links() {
 
               {/* Link Details */}
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <p className="truncate text-sm font-semibold text-[#284737]">{link.title}</p>
+                  {link.icon === "google-reviews" && (
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-semibold ${
+                        link.enableReviewAssistant
+                          ? "bg-[#e3f7e6] text-[#284737] border border-[#b7dbc4]"
+                          : "bg-slate-100 text-slate-600 border border-slate-200"
+                      }`}
+                    >
+                      <Sparkles size={10} className={link.enableReviewAssistant ? "text-[#467359]" : "text-slate-400"} />
+                      {link.enableReviewAssistant ? `Assistant ON • ${link.reviewCategory || "General"}` : "Direct Link"}
+                    </span>
+                  )}
                   {!link.isActive && (
                     <span className="rounded-md bg-[#f0f3f0] px-1.5 py-0.2 text-[10px] font-medium text-[#70a087]">
                       Hidden

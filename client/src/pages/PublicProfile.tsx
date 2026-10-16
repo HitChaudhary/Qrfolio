@@ -72,7 +72,7 @@ export default function PublicProfile() {
         {state.status === "error" && (
           <Message title="Something went wrong" text="Could not load this profile. Please refresh or try again in a few moments." />
         )}
-        {state.status === "ok" && <Profile data={state.data} />}
+        {state.status === "ok" && <Profile data={state.data} slug={slug ?? ""} />}
       </div>
 
       {/* Powered by QrFolio footer badge */}
@@ -91,7 +91,7 @@ export default function PublicProfile() {
   );
 }
 
-function Profile({ data }: { data: PublicProfileData }) {
+function Profile({ data, slug }: { data: PublicProfileData; slug: string }) {
   const [copied, setCopied] = useState(false);
   const links = data.links.filter((l) => isSafeHref(l.url));
 
@@ -180,6 +180,27 @@ function Profile({ data }: { data: PublicProfileData }) {
           {links.map((link) => {
             const { Icon } = getLinkType(link.icon);
             const external = /^https?:/i.test(link.url);
+            const isReviewAssistant = link.icon === "google-reviews" && link.enableReviewAssistant;
+
+            if (isReviewAssistant) {
+              return (
+                <li key={link.id}>
+                  <Link
+                    to={`/p/${encodeURIComponent(slug)}/review/${link.id}`}
+                    className="group flex min-h-[58px] items-center gap-3.5 rounded-2xl bg-white/95 px-4 py-3 shadow-xs ring-1 ring-[#b7dbc4] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:ring-[#69bd92] active:translate-y-0 active:bg-[#f0f3f0]"
+                  >
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#e3f7e6] text-[#467359] group-hover:bg-[#69bd92] group-hover:text-white transition-colors duration-200">
+                      <Icon size={20} />
+                    </span>
+                    <span className="flex-1 font-semibold text-[#284737] group-hover:text-[#467359] transition-colors truncate text-sm sm:text-base">
+                      {link.title}
+                    </span>
+                    <ChevronRight size={18} className="text-[#a5afa9] group-hover:text-[#467359] group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
+                </li>
+              );
+            }
+
             return (
               <li key={link.id}>
                 <a
