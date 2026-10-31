@@ -1,4 +1,4 @@
-import { ArrowRight, CheckCircle2, Loader2, Lock, Mail, User } from "lucide-react";
+import { ArrowRight, CheckCircle2, Loader2, Lock, Mail, Store, User } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import AuthShell, { buttonClass, inputClass } from "../components/AuthShell";
@@ -36,12 +36,12 @@ export default function Register() {
 
   return (
     <AuthShell
-      title="Create your account"
-      subtitle="Launch your dynamic QrFolio page in less than 2 minutes."
+      title="Claim your Smart QR"
+      subtitle="One stand on your counter, your entire business on their phone. Live in 2 minutes."
       footer={
         <>
-          Already registered?{" "}
-          <Link to="/login" className="font-bold text-[#467359] hover:text-[#284737] underline transition-colors">
+          Already have a QrFolio stand?{" "}
+          <Link to="/login" className="font-bold text-slate-950 hover:underline transition-colors">
             Sign in here
           </Link>
         </>
@@ -49,15 +49,15 @@ export default function Register() {
     >
       <form onSubmit={onSubmit} className="space-y-4">
         <div>
-          <label htmlFor="name" className="mb-1.5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#467359]">
-            <User size={13} /> Full Name or Business Name
+          <label htmlFor="name" className="mb-1.5 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-600">
+            <Store size={13} className="text-slate-400" /> Business or Shop Name
           </label>
           <input
             id="name"
             type="text"
             required
             autoComplete="name"
-            placeholder="e.g. Elena Vance"
+            placeholder="e.g. Nilkanth Cafe or Elena Salon"
             className={inputClass}
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -65,15 +65,15 @@ export default function Register() {
         </div>
 
         <div>
-          <label htmlFor="email" className="mb-1.5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#467359]">
-            <Mail size={13} /> Email Address
+          <label htmlFor="email" className="mb-1.5 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-600">
+            <Mail size={13} className="text-slate-400" /> Email Address
           </label>
           <input
             id="email"
             type="email"
             required
             autoComplete="email"
-            placeholder="elena@studio.com"
+            placeholder="e.g. contact@nilkanthcafe.in"
             className={inputClass}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -81,8 +81,8 @@ export default function Register() {
         </div>
 
         <div>
-          <label htmlFor="password" className="mb-1.5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#467359]">
-            <Lock size={13} /> Password
+          <label htmlFor="password" className="mb-1.5 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-600">
+            <Lock size={13} className="text-slate-400" /> Password
           </label>
           <input
             id="password"
@@ -95,14 +95,14 @@ export default function Register() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <div className="mt-1 flex items-center gap-1.5 text-[11px] text-[#70a087]">
-            <CheckCircle2 size={12} className={password.length >= 8 ? "text-[#69bd92]" : "text-[#a5afa9]"} />
+          <div className="mt-1.5 flex items-center gap-1.5 text-[10px] text-slate-500 font-medium">
+            <CheckCircle2 size={12} className={password.length >= 8 ? "text-emerald-600" : "text-slate-400"} />
             <span>Must contain at least 8 characters</span>
           </div>
         </div>
 
         {error && (
-          <p role="alert" className="rounded-xl bg-red-50 border border-red-200 px-3.5 py-2.5 text-xs text-red-700 font-medium">
+          <p role="alert" className="rounded-2xl bg-rose-50 border border-rose-200 px-4 py-2.5 text-xs text-rose-700 font-medium">
             {error}
           </p>
         )}
@@ -110,11 +110,11 @@ export default function Register() {
         <button type="submit" disabled={submitting} className={buttonClass}>
           {submitting ? (
             <>
-              <Loader2 size={16} className="animate-spin" /> Creating your QrFolio...
+              <Loader2 size={16} className="animate-spin" /> Setting up your studio...
             </>
           ) : (
             <>
-              Get Started Free <ArrowRight size={16} />
+              Claim Free QR Stand ↗
             </>
           )}
         </button>

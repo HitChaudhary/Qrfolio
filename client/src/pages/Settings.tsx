@@ -1,4 +1,4 @@
-import { Loader2, LogOut } from "lucide-react";
+import { Loader2, Lock, LogOut, ShieldCheck, User } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../components/Toast";
@@ -27,7 +27,7 @@ export default function Settings() {
       setCurrent("");
       setNext("");
       setConfirm("");
-      toast.show("Password updated");
+      toast.show("Password updated successfully");
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
@@ -41,44 +41,104 @@ export default function Settings() {
   }
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-semibold tracking-tight">Settings</h1>
+    <div className="space-y-6 max-w-2xl animate-fade-in">
+      <div>
+        <h1 className="font-display text-2xl sm:text-3xl font-black tracking-tight text-slate-950">
+          Account & Security
+        </h1>
+        <p className="text-xs sm:text-sm text-slate-500 mt-1">
+          Manage your login credentials, role access, and merchant sessions.
+        </p>
+      </div>
 
       <div className={cardClass}>
-        <h2 className="font-semibold">Account</h2>
-        <dl className="mt-3 space-y-2 text-sm">
-          <div className="flex justify-between gap-4"><dt className="text-slate-500">Name</dt><dd>{user?.name}</dd></div>
-          <div className="flex justify-between gap-4"><dt className="text-slate-500">Email</dt><dd className="truncate">{user?.email}</dd></div>
+        <div className="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
+          <User size={18} className="text-slate-900" />
+          <h2 className="font-display font-black text-slate-950 text-base">Account Identity</h2>
+        </div>
+        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+          <div className="rounded-2xl bg-slate-50 p-3.5 border border-slate-200/80">
+            <dt className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Account Name</dt>
+            <dd className="mt-1 font-bold text-slate-950 text-sm">{user?.name}</dd>
+          </div>
+          <div className="rounded-2xl bg-slate-50 p-3.5 border border-slate-200/80">
+            <dt className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Email Address</dt>
+            <dd className="mt-1 font-bold text-slate-950 text-sm truncate">{user?.email}</dd>
+          </div>
         </dl>
       </div>
 
       <form onSubmit={onSubmit} className={`${cardClass} space-y-4`}>
-        <h2 className="font-semibold">Change password</h2>
-        <div>
-          <label htmlFor="current" className="mb-1 block text-sm font-medium">Current password</label>
-          <input id="current" type="password" required autoComplete="current-password" className={inputClass}
-            value={current} onChange={(e) => setCurrent(e.target.value)} />
+        <div className="flex items-center gap-2 mb-2 pb-3 border-b border-slate-100">
+          <Lock size={18} className="text-slate-900" />
+          <h2 className="font-display font-black text-slate-950 text-base">Change Password</h2>
         </div>
         <div>
-          <label htmlFor="next" className="mb-1 block text-sm font-medium">New password</label>
-          <input id="next" type="password" required minLength={8} autoComplete="new-password" className={inputClass}
-            value={next} onChange={(e) => setNext(e.target.value)} />
+          <label htmlFor="current" className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-600">
+            Current Password
+          </label>
+          <input
+            id="current"
+            type="password"
+            required
+            autoComplete="current-password"
+            className={inputClass}
+            value={current}
+            onChange={(e) => setCurrent(e.target.value)}
+          />
         </div>
-        <div>
-          <label htmlFor="confirm" className="mb-1 block text-sm font-medium">Confirm new password</label>
-          <input id="confirm" type="password" required autoComplete="new-password" className={inputClass}
-            value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="next" className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-600">
+              New Password
+            </label>
+            <input
+              id="next"
+              type="password"
+              required
+              minLength={8}
+              autoComplete="new-password"
+              placeholder="Min 8 characters"
+              className={inputClass}
+              value={next}
+              onChange={(e) => setNext(e.target.value)}
+            />
+          </div>
+          <div>
+            <label htmlFor="confirm" className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-600">
+              Confirm New Password
+            </label>
+            <input
+              id="confirm"
+              type="password"
+              required
+              autoComplete="new-password"
+              placeholder="Repeat new password"
+              className={inputClass}
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+            />
+          </div>
         </div>
-        {error && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
-        <button type="submit" disabled={saving} className={primaryBtn}>
-          {saving && <Loader2 size={16} className="animate-spin" />}
-          Update password
-        </button>
+        {error && <p role="alert" className="rounded-2xl bg-rose-50 border border-rose-200 p-3 text-xs font-semibold text-rose-700">{error}</p>}
+        <div className="pt-2">
+          <button type="submit" disabled={saving} className={primaryBtn}>
+            {saving && <Loader2 size={15} className="animate-spin mr-1" />}
+            Update Password
+          </button>
+        </div>
       </form>
 
       <div className={cardClass}>
-        <h2 className="font-semibold">Session</h2>
-        <button onClick={onLogout} className={`${dangerBtn} mt-3`}><LogOut size={16} /> Log out</button>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="font-display font-black text-slate-950 text-base">Active Session</h2>
+            <p className="text-xs text-slate-500 mt-0.5">Log out of your QrFolio account on this device.</p>
+          </div>
+          <button onClick={onLogout} className={dangerBtn}>
+            <LogOut size={15} /> Log Out
+          </button>
+        </div>
       </div>
     </div>
   );

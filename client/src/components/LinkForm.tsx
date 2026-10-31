@@ -5,6 +5,7 @@ import { LINK_TYPES, getLinkType } from "../lib/linkTypes";
 import { BUSINESS_CATEGORIES } from "../lib/reviewSuggestions";
 import type { BusinessLink } from "../lib/types";
 import { brandBtn, inputClass, secondaryBtn } from "../lib/ui";
+import { BrandLogo } from "./BrandLogos";
 
 export interface LinkValues {
   icon: string;
@@ -19,7 +20,6 @@ export default function LinkForm({
   onSubmit,
   onCancel,
   businessCategory = "",
-  businessName = "",
 }: {
   initial?: BusinessLink;
   onSubmit: (values: LinkValues) => Promise<void>;
@@ -46,7 +46,6 @@ export default function LinkForm({
   );
 
   const type = getLinkType(icon);
-  const { Icon } = type;
 
   function onTypeChange(value: string) {
     setIcon(value);
@@ -81,36 +80,41 @@ export default function LinkForm({
   return (
     <form
       onSubmit={submit}
-      className="space-y-4 rounded-2xl border-2 border-[#b7dbc4] bg-white p-5 shadow-lg shadow-[#467359]/5 ring-1 ring-[#284737]/5 animate-fade-in"
+      className="space-y-4 rounded-3xl border-2 border-slate-900 bg-white p-6 shadow-xl ring-1 ring-slate-950/5 animate-fade-in"
     >
-      <div className="flex items-center justify-between border-b border-[#e3f7e6] pb-3">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#e3f7e6] text-[#467359]">
-            <Icon size={18} />
+      <div className="flex items-center justify-between border-b border-slate-100 pb-3.5">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 border border-slate-200 shadow-2xs">
+            <BrandLogo name={icon} size={20} />
           </div>
-          <span className="font-semibold text-[#284737] text-sm">
-            {initial ? "Edit Link" : "Add New Link"}
-          </span>
+          <div>
+            <span className="font-display font-black text-slate-950 text-sm block">
+              {initial ? "Edit Destination Link" : "Add Customer Destination"}
+            </span>
+            <span className="text-[11px] text-slate-500">
+              Instantly reflects on your counter QR code without reprinting
+            </span>
+          </div>
         </div>
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-lg p-1 text-[#70a087] hover:bg-[#e3f7e6] hover:text-[#284737] cursor-pointer"
+          className="rounded-xl p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-900 cursor-pointer transition-colors"
         >
-          <X size={16} />
+          <X size={17} />
         </button>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="link-type" className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#43745b]">
-            Platform / Type
+          <label htmlFor="link-type" className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-600">
+            Platform / Channel
           </label>
           <select
             id="link-type"
             value={icon}
             onChange={(e) => onTypeChange(e.target.value)}
-            className={`${inputClass} bg-[#f0f3f0]/50`}
+            className={`${inputClass} font-medium`}
           >
             {LINK_TYPES.map((t) => (
               <option key={t.value} value={t.value}>
@@ -120,15 +124,15 @@ export default function LinkForm({
           </select>
         </div>
         <div>
-          <label htmlFor="link-title" className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#43745b]">
-            Button Label
+          <label htmlFor="link-title" className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-600">
+            Button Label on Phone
           </label>
           <input
             id="link-title"
             required
             maxLength={60}
             value={title}
-            placeholder="e.g. Follow on Instagram"
+            placeholder="e.g. Rate Us 5★ on Google or WhatsApp Order"
             className={inputClass}
             onChange={(e) => {
               setTitle(e.target.value);
@@ -139,124 +143,82 @@ export default function LinkForm({
       </div>
 
       <div>
-        <label htmlFor="link-url" className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#43745b]">
-          {icon === "phone"
-            ? "Phone Number"
-            : icon === "email"
-            ? "Email Address"
-            : icon === "google-reviews"
-            ? "Google Review URL"
-            : "Destination URL"}
-          <span className="text-red-500 ml-0.5">*</span>
+        <label htmlFor="link-url" className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-600">
+          Destination URL / Deep Link
         </label>
         <input
           id="link-url"
           required
+          type={icon === "phone" ? "tel" : "text"}
           value={url}
-          placeholder={
-            icon === "google-reviews"
-              ? "https://g.page/r/.../review or https://search.google.com/local/writereview?placeid=..."
-              : type.placeholder
-          }
+          placeholder={type.placeholder}
           className={inputClass}
-          autoComplete="off"
-          inputMode={icon === "phone" ? "tel" : icon === "email" ? "email" : "url"}
           onChange={(e) => setUrl(e.target.value)}
         />
-        {icon === "google-reviews" && (
-          <p className="mt-1 text-[11px] text-[#70a087]">
-            Paste your direct Google Business review link. Customers will be directed here to post their review.
-          </p>
-        )}
+        <p className="mt-1.5 text-[11px] text-slate-500 leading-normal">
+          e.g. {type.placeholder}
+        </p>
       </div>
 
-      {/* Special Google Review Configuration */}
+      {/* Google Reviews Assistant Configuration */}
       {icon === "google-reviews" && (
-        <div className="rounded-xl border border-[#b7dbc4] bg-[#f0f3f0]/40 p-4 space-y-4">
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#284737]">
-            <Sparkles size={14} className="text-[#467359]" />
-            <span>Google Review Assistant Settings</span>
-          </div>
-
-          <div>
-            <label
-              htmlFor="review-category"
-              className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#43745b]"
-            >
-              Business Category <span className="text-red-500">*</span>
-            </label>
-            <select
-              id="review-category"
-              value={reviewCategory}
-              onChange={(e) => setReviewCategory(e.target.value)}
-              className={`${inputClass} bg-white`}
-              required
-            >
-              {BUSINESS_CATEGORIES.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
-            <p className="mt-1 text-[11px] text-[#70a087]">
-              Used to suggest relevant customer experience topics (e.g. food quality, service, ambiance).
-            </p>
-          </div>
-
-          {/* Toggle for Review Assistant */}
-          <div className="flex items-start justify-between gap-3 rounded-lg bg-white p-3 border border-[#b7dbc4]/60">
+        <div className="space-y-3 rounded-2xl border border-sky-200 bg-sky-50/60 p-4">
+          <div className="flex items-start justify-between gap-3">
             <div className="space-y-0.5">
-              <label htmlFor="review-assistant-toggle" className="text-sm font-semibold text-[#284737] block cursor-pointer">
-                Review Assistant
-              </label>
-              <p className="text-xs text-[#70a087] leading-relaxed">
-                {enableReviewAssistant
-                  ? "Customers tap Google Reviews → Review Assistant helps them draft & copy their genuine review → proceeds to Google."
-                  : "Review Assistant disabled. Customers will open your Google Review URL directly."}
+              <div className="flex items-center gap-1.5 text-xs font-bold text-sky-950">
+                <Sparkles size={13} className="text-sky-600" />
+                <span>Smart Google 5-Star Review Booster</span>
+              </div>
+              <p className="text-[11px] text-sky-800 leading-relaxed">
+                Helps happy customers generate personalized review copy based on their dining or shopping experience before tapping straight to Google Maps.
               </p>
             </div>
-            <button
-              id="review-assistant-toggle"
-              type="button"
-              role="switch"
-              aria-checked={enableReviewAssistant}
-              onClick={() => setEnableReviewAssistant(!enableReviewAssistant)}
-              className={`relative h-6 w-11 shrink-0 rounded-full transition-colors cursor-pointer ${
-                enableReviewAssistant ? "bg-[#467359]" : "bg-[#a5afa9]"
-              }`}
-            >
-              <span
-                className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${
-                  enableReviewAssistant ? "left-[22px]" : "left-0.5"
-                }`}
+            <label className="relative inline-flex cursor-pointer items-center shrink-0">
+              <input
+                type="checkbox"
+                checked={enableReviewAssistant}
+                onChange={(e) => setEnableReviewAssistant(e.target.checked)}
+                className="peer sr-only"
               />
-            </button>
+              <div className="peer h-6 w-11 rounded-full bg-slate-300 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:bg-slate-950 peer-checked:after:translate-x-full" />
+            </label>
           </div>
 
-          {businessName && (
-            <div className="flex items-center gap-2 text-xs text-[#43745b] bg-[#e3f7e6]/50 p-2.5 rounded-lg border border-[#b7dbc4]/40">
-              <Info size={14} className="shrink-0 text-[#467359]" />
-              <span>
-                Personalized review suggestions will feature your business name: <strong>{businessName}</strong>.
-              </span>
+          {enableReviewAssistant && (
+            <div className="pt-2 border-t border-sky-200/60">
+              <label htmlFor="review-category" className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-sky-900">
+                Business Category Focus
+              </label>
+              <select
+                id="review-category"
+                value={reviewCategory}
+                onChange={(e) => setReviewCategory(e.target.value)}
+                className={`${inputClass} bg-white text-xs`}
+              >
+                {BUSINESS_CATEGORIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
             </div>
           )}
         </div>
       )}
 
       {error && (
-        <p role="alert" className="rounded-xl bg-red-50 p-3 text-xs font-medium text-red-700 border border-red-200">
+        <p role="alert" className="rounded-2xl bg-rose-50 border border-rose-200 p-3 text-xs font-semibold text-rose-700">
           {error}
         </p>
       )}
 
-      <div className="flex items-center gap-2.5 pt-1">
-        <button type="submit" disabled={saving} className={brandBtn}>
-          {saving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
-          {initial ? "Save Link" : "Add Link"}
-        </button>
-        <button type="button" onClick={onCancel} disabled={saving} className={secondaryBtn}>
+      <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
+        <button type="button" onClick={onCancel} className={secondaryBtn}>
           Cancel
+        </button>
+        <button type="submit" disabled={saving} className={brandBtn}>
+          {saving && <Loader2 size={14} className="animate-spin mr-1" />}
+          {initial ? "Save Changes" : "Publish to Counter QR"}
         </button>
       </div>
     </form>

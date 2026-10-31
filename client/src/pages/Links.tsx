@@ -1,6 +1,7 @@
 import {
   ChevronDown,
   ChevronUp,
+  ExternalLink,
   Link2,
   Pencil,
   Plus,
@@ -16,7 +17,9 @@ import { useBusiness } from "../hooks/useBusiness";
 import { api, getErrorMessage } from "../lib/api";
 import { getLinkType } from "../lib/linkTypes";
 import type { Business } from "../lib/types";
-import { brandBtn } from "../lib/ui";
+import { brandBtn, secondaryBtn } from "../lib/ui";
+import { BrandLogo } from "../components/BrandLogos";
+import { publicUrl } from "../lib/config";
 
 type Res = { data: { business: Business } };
 
@@ -32,8 +35,8 @@ export default function Links() {
 
   if (!business) {
     return (
-      <div className="rounded-3xl border border-[#b7dbc4] bg-white p-10 text-center shadow-xs">
-        <p className="text-[#43745b]">Please create your business profile before managing links.</p>
+      <div className="rounded-3xl border border-slate-200/90 bg-white p-10 text-center shadow-xs">
+        <p className="text-slate-600">Please create your business profile before managing links.</p>
         <Link to="/dashboard/business/new" className={`${brandBtn} mt-5`}>
           Create Business Profile
         </Link>
@@ -43,6 +46,7 @@ export default function Links() {
 
   const base = `/business/${business.id}/links`;
   const links = business.links;
+  const liveUrl = publicUrl(business.slug);
 
   async function run(call: () => Promise<{ data: Res }>, success?: string) {
     setBusy(true);
@@ -61,14 +65,14 @@ export default function Links() {
     const res = await api.post<Res>(base, values);
     setBusiness(res.data.data.business);
     setEditing(null);
-    toast.show("New link added to your page");
+    toast.show("New destination published to your live QR code!");
   }
 
   async function submitEdit(linkId: string, values: LinkValues) {
     const res = await api.put<Res>(`${base}/${linkId}`, values);
     setBusiness(res.data.data.business);
     setEditing(null);
-    toast.show("Link updated");
+    toast.show("Destination link updated");
   }
 
   function move(index: number, dir: -1 | 1) {
@@ -80,26 +84,36 @@ export default function Links() {
 
   function remove(linkId: string, title: string) {
     if (!window.confirm(`Are you sure you want to delete "${title}"?`)) return;
-    run(() => api.delete<Res>(`${base}/${linkId}`), "Link deleted");
+    run(() => api.delete<Res>(`${base}/${linkId}`), "Destination deleted");
   }
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="font-display text-2xl font-bold tracking-tight text-[#284737] sm:text-3xl">
+          <h1 className="font-display text-2xl sm:text-3xl font-black tracking-tight text-slate-950">
             Links & Destinations
           </h1>
-          <p className="text-xs sm:text-sm text-[#70a087] mt-0.5">
-            Add and arrange all the links that appear when customers scan your QR code.
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            Add and arrange buttons that appear on your customers' smartphones. Update in 10s with ₹0 reprint cost.
           </p>
         </div>
-        {editing !== "new" && (
-          <button onClick={() => setEditing("new")} className={brandBtn}>
-            <Plus size={16} /> Add New Link
-          </button>
-        )}
+        <div className="flex items-center gap-2.5">
+          <a
+            href={liveUrl}
+            target="_blank"
+            rel="noreferrer"
+            className={`${secondaryBtn} !py-2 !px-4 text-xs font-bold`}
+          >
+            <ExternalLink size={14} /> Preview Customer Bio
+          </a>
+          {editing !== "new" && (
+            <button onClick={() => setEditing("new")} className={`${brandBtn} !py-2 !px-4 text-xs font-black`}>
+              <Plus size={15} /> Add New Link
+            </button>
+          )}
+        </div>
       </div>
 
       {/* New Link Form */}
@@ -114,16 +128,16 @@ export default function Links() {
 
       {/* Empty State */}
       {links.length === 0 && editing !== "new" && (
-        <div className="rounded-3xl border border-dashed border-[#b7dbc4] bg-white p-12 text-center shadow-xs">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#e3f7e6] text-[#467359] mb-4">
+        <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-12 text-center shadow-xs">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-950 text-[#d4f04d] mb-4 shadow-sm">
             <Link2 size={28} />
           </div>
-          <h3 className="font-bold text-lg text-[#284737]">No links added yet</h3>
-          <p className="mx-auto mt-2 max-w-sm text-xs sm:text-sm text-[#70a087]">
-            Add your social media channels, Google review link, WhatsApp, digital menu, or custom website.
+          <h3 className="font-display font-black text-lg text-slate-950">No customer links yet</h3>
+          <p className="mx-auto mt-1.5 max-w-sm text-xs sm:text-sm text-slate-500">
+            Add your Rate 5★ on Google button, WhatsApp ordering chat, Instagram specials, or digital food menu.
           </p>
           <button onClick={() => setEditing("new")} className={`${brandBtn} mt-6`}>
-            <Plus size={16} /> Add Your First Link
+            <Plus size={15} /> Add Your First Link
           </button>
         </div>
       )}
@@ -138,114 +152,90 @@ export default function Links() {
                   initial={link}
                   businessCategory={business.category}
                   businessName={business.businessName}
-                  onSubmit={(v) => submitEdit(link.id, v)}
+                  onSubmit={(values) => submitEdit(link.id, values)}
                   onCancel={() => setEditing(null)}
                 />
               </li>
             );
           }
 
-          const { Icon } = getLinkType(link.icon);
+          const { label } = getLinkType(link.icon);
 
           return (
             <li
               key={link.id}
-              className={`group flex items-center gap-3.5 rounded-2xl border border-[#b7dbc4]/70 bg-white p-3.5 sm:p-4 shadow-xs transition-all duration-200 hover:border-[#69bd92] hover:shadow-md ${
-                link.isActive ? "" : "opacity-60 bg-[#f0f3f0]/70"
-              }`}
+              className="group flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 rounded-3xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-xs transition-all hover:border-slate-300 hover:shadow-md"
             >
-              {/* Reorder Buttons */}
-              <div className="flex flex-col gap-0.5">
-                <button
-                  disabled={busy || i === 0}
-                  onClick={() => move(i, -1)}
-                  aria-label="Move up"
-                  title="Move up"
-                  className="flex h-6 w-6 items-center justify-center rounded-md text-[#70a087] hover:bg-[#e3f7e6] hover:text-[#284737] disabled:opacity-20 cursor-pointer disabled:pointer-events-none"
-                >
-                  <ChevronUp size={15} />
-                </button>
-                <button
-                  disabled={busy || i === links.length - 1}
-                  onClick={() => move(i, 1)}
-                  aria-label="Move down"
-                  title="Move down"
-                  className="flex h-6 w-6 items-center justify-center rounded-md text-[#70a087] hover:bg-[#e3f7e6] hover:text-[#284737] disabled:opacity-20 cursor-pointer disabled:pointer-events-none"
-                >
-                  <ChevronDown size={15} />
-                </button>
-              </div>
-
-              {/* Platform Icon Badge */}
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#e3f7e6] text-[#467359] group-hover:bg-[#467359] group-hover:text-white transition-colors">
-                <Icon size={20} />
-              </div>
-
-              {/* Link Details */}
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="truncate text-sm font-semibold text-[#284737]">{link.title}</p>
-                  {link.icon === "google-reviews" && (
-                    <span
-                      className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-semibold ${
-                        link.enableReviewAssistant
-                          ? "bg-[#e3f7e6] text-[#284737] border border-[#b7dbc4]"
-                          : "bg-slate-100 text-slate-600 border border-slate-200"
-                      }`}
-                    >
-                      <Sparkles size={10} className={link.enableReviewAssistant ? "text-[#467359]" : "text-slate-400"} />
-                      {link.enableReviewAssistant ? `Assistant ON • ${link.reviewCategory || "General"}` : "Direct Link"}
-                    </span>
-                  )}
-                  {!link.isActive && (
-                    <span className="rounded-md bg-[#f0f3f0] px-1.5 py-0.2 text-[10px] font-medium text-[#70a087]">
-                      Hidden
-                    </span>
-                  )}
+              {/* Left Details */}
+              <div className="flex items-center gap-3.5 min-w-0">
+                {/* Reorder Buttons */}
+                <div className="flex flex-col gap-0.5 shrink-0">
+                  <button
+                    disabled={i === 0 || busy}
+                    onClick={() => move(i, -1)}
+                    title="Move up"
+                    aria-label="Move up"
+                    className="flex h-6 w-6 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-25 cursor-pointer transition-colors"
+                  >
+                    <ChevronUp size={15} />
+                  </button>
+                  <button
+                    disabled={i === links.length - 1 || busy}
+                    onClick={() => move(i, 1)}
+                    title="Move down"
+                    aria-label="Move down"
+                    className="flex h-6 w-6 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-25 cursor-pointer transition-colors"
+                  >
+                    <ChevronDown size={15} />
+                  </button>
                 </div>
-                <p className="truncate text-xs text-[#70a087] font-mono mt-0.5">{link.url}</p>
+
+                {/* Brand Icon Box */}
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-50 border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform">
+                  <BrandLogo name={link.icon} size={22} />
+                </span>
+
+                {/* Title & URL */}
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="truncate text-sm sm:text-base font-bold text-slate-950">
+                      {link.title}
+                    </p>
+                    <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600 uppercase tracking-wider">
+                      {label}
+                    </span>
+                    {link.icon === "google-reviews" && link.enableReviewAssistant && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-[#d4f04d]/40 px-2 py-0.5 text-[10px] font-black text-slate-950">
+                        <Sparkles size={10} /> 5★ Review Booster
+                      </span>
+                    )}
+                  </div>
+                  <p className="truncate text-xs font-mono text-slate-400 mt-0.5">{link.url}</p>
+                </div>
               </div>
 
-              {/* Active Toggle Switch */}
-              <button
-                role="switch"
-                aria-checked={link.isActive}
-                disabled={busy}
-                aria-label={link.isActive ? "Hide link" : "Show link"}
-                title={link.isActive ? "Link is active (click to hide)" : "Link is hidden (click to activate)"}
-                onClick={() =>
-                  run(() => api.put<Res>(`${base}/${link.id}`, { isActive: !link.isActive }))
-                }
-                className={`relative h-6 w-11 shrink-0 rounded-full transition-colors cursor-pointer disabled:opacity-50 ${
-                  link.isActive ? "bg-[#69bd92]" : "bg-[#a5afa9]"
-                }`}
-              >
-                <span
-                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${
-                    link.isActive ? "left-[22px]" : "left-0.5"
-                  }`}
-                />
-              </button>
+              {/* Right Stats & Action Buttons */}
+              <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-bold text-emerald-800 border border-emerald-200">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Active
+                </span>
 
-              {/* Actions */}
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => setEditing(link.id)}
-                  aria-label="Edit link"
-                  title="Edit link"
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-[#70a087] hover:bg-[#e3f7e6] hover:text-[#284737] cursor-pointer"
-                >
-                  <Pencil size={15} />
-                </button>
-                <button
-                  onClick={() => remove(link.id, link.title)}
-                  disabled={busy}
-                  aria-label="Delete link"
-                  title="Delete link"
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-[#a5afa9] hover:bg-red-50 hover:text-red-600 disabled:opacity-50 cursor-pointer"
-                >
-                  <Trash2 size={15} />
-                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setEditing(link.id)}
+                    title="Edit destination"
+                    className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors cursor-pointer"
+                  >
+                    <Pencil size={15} />
+                  </button>
+                  <button
+                    onClick={() => remove(link.id, link.title)}
+                    title="Delete destination"
+                    className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                </div>
               </div>
             </li>
           );

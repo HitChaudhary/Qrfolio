@@ -32,27 +32,27 @@ export default function Login() {
   return (
     <AuthShell
       title="Welcome back"
-      subtitle="Log in to manage your QrFolio page and track live scans."
+      subtitle="Log in to manage your QR code, live food menu, and WhatsApp links."
       footer={
         <>
           New to QrFolio?{" "}
-          <Link to="/register" className="font-bold text-[#467359] hover:text-[#284737] underline transition-colors">
-            Create a free account
+          <Link to="/register" className="font-bold text-slate-950 hover:underline transition-colors">
+            Claim your free dynamic QR ↗
           </Link>
         </>
       }
     >
       <form onSubmit={onSubmit} className="space-y-4">
         <div>
-          <label htmlFor="email" className="mb-1.5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#467359]">
-            <Mail size={13} /> Email Address
+          <label htmlFor="email" className="mb-1.5 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-600">
+            <Mail size={13} className="text-slate-400" /> Email Address
           </label>
           <input
             id="email"
             type="email"
             required
             autoComplete="email"
-            placeholder="you@company.com"
+            placeholder="e.g. shopowner@nilkanthcafe.in"
             className={inputClass}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -61,8 +61,8 @@ export default function Login() {
 
         <div>
           <div className="mb-1.5 flex items-center justify-between">
-            <label htmlFor="password" className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#467359]">
-              <Lock size={13} /> Password
+            <label htmlFor="password" className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-600">
+              <Lock size={13} className="text-slate-400" /> Password
             </label>
           </div>
           <input
@@ -78,7 +78,7 @@ export default function Login() {
         </div>
 
         {error && (
-          <p role="alert" className="rounded-xl bg-red-50 border border-red-200 px-3.5 py-2.5 text-xs text-red-700 font-medium">
+          <p role="alert" className="rounded-2xl bg-rose-50 border border-rose-200 px-4 py-2.5 text-xs text-rose-700 font-medium">
             {error}
           </p>
         )}
@@ -90,7 +90,7 @@ export default function Login() {
             </>
           ) : (
             <>
-              Sign In <ArrowRight size={16} />
+              Sign In <ArrowRight size={15} />
             </>
           )}
         </button>

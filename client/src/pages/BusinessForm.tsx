@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle2, ExternalLink, Globe, Loader2, Sparkles, Trash2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ExternalLink, Globe, Loader2, Sparkles, Store, Trash2 } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import LogoUploader from "../components/LogoUploader";
@@ -9,7 +9,7 @@ import { api, getErrorMessage } from "../lib/api";
 import { publicUrl } from "../lib/config";
 import { slugify } from "../lib/slug";
 import type { Business } from "../lib/types";
-import { brandBtn, cardClass, dangerBtn, inputClass } from "../lib/ui";
+import { brandBtn, cardClass, dangerBtn, inputClass, secondaryBtn } from "../lib/ui";
 
 type Mode = "create" | "edit";
 
@@ -57,7 +57,7 @@ function Form({
       mode === "edit" &&
       business &&
       slug !== business.slug &&
-      !window.confirm("⚠️ Changing the URL slug will invalidate any QR codes you have already printed. Are you sure you want to proceed?")
+      !window.confirm("⚠️ Changing your URL slug will invalidate any QR codes you have already printed. Are you sure you want to proceed?")
     ) {
       return;
     }
@@ -67,13 +67,13 @@ function Form({
       if (mode === "create") {
         const res = await api.post<{ data: { business: Business } }>("/business", payload);
         setBusiness(res.data.data.business);
-        toast.show("Business profile created! Next, upload your logo and add your links.");
+        toast.show("Store hub created! Now upload your logo and publish your links.");
         navigate("/dashboard/business/edit", { replace: true });
       } else if (business) {
         const res = await api.put<{ data: { business: Business } }>(`/business/${business.id}`, payload);
         setBusiness(res.data.data.business);
         setSlug(res.data.data.business.slug);
-        toast.show("Profile updated successfully");
+        toast.show("Store profile updated successfully");
       }
     } catch (err) {
       setError(getErrorMessage(err));
@@ -84,7 +84,7 @@ function Form({
 
   async function onDelete() {
     if (!business) return;
-    if (!window.confirm("Delete this business, all its links, and its QR code? This action cannot be undone.")) return;
+    if (!window.confirm("Delete this store hub, all links, and its QR code? This action cannot be undone.")) return;
     setDeleting(true);
     try {
       await api.delete(`/business/${business.id}`);
@@ -99,25 +99,25 @@ function Form({
   const livePublicUrl = publicUrl(slug || "your-brand");
 
   return (
-    <div className="space-y-6 animate-fadeIn max-w-2xl">
+    <div className="space-y-6 sm:space-y-8 animate-fade-in max-w-3xl">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-[#284737]">
-          {mode === "create" ? "Create Business Profile" : "Business Profile & Settings"}
+        <h1 className="font-display text-2xl sm:text-3xl font-black tracking-tight text-slate-950">
+          {mode === "create" ? "Create Store Profile" : "Storefront Profile & Branding"}
         </h1>
-        <p className="text-sm text-[#70a087] mt-0.5">
+        <p className="text-xs sm:text-sm text-slate-500 mt-1">
           {mode === "create"
-            ? "Configure your business identity and reserve your unique QR landing page URL."
-            : "Update your business details, branding logo, and page availability."}
+            ? "Configure your business identity and reserve your permanent QR counter URL."
+            : "Update your business name, daily announcement, logo, and active counter availability."}
         </p>
       </div>
 
       {/* Logo uploader in edit mode */}
       {mode === "edit" && business && (
         <div className={cardClass}>
-          <div className="flex items-center gap-2 mb-4 pb-3 border-b border-[#b7dbc4]/40">
-            <Sparkles size={17} className="text-[#467359]" />
-            <h2 className="font-bold text-[#284737]">Brand Logo</h2>
+          <div className="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
+            <Sparkles size={17} className="text-[#d4f04d]" />
+            <h2 className="font-display font-black text-slate-950 text-base">Store Brand Logo</h2>
           </div>
           <LogoUploader business={business} onChange={setBusiness} />
         </div>
@@ -125,119 +125,109 @@ function Form({
 
       {/* Main Details Form */}
       <form onSubmit={onSubmit} className={`${cardClass} space-y-5`}>
-        <div className="flex items-center justify-between pb-3 border-b border-[#b7dbc4]/40">
-          <h2 className="font-bold text-[#284737]">General Information</h2>
+        <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
+          <h2 className="font-display font-black text-slate-950 text-base">General Information</h2>
           {mode === "edit" && (
             <span
-              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-0.5 text-xs font-semibold ${
-                isActive ? "bg-[#dff6e2] text-[#355d48]" : "bg-slate-200 text-slate-700"
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-0.5 text-xs font-bold ${
+                isActive ? "bg-emerald-50 text-emerald-800 border border-emerald-200" : "bg-slate-100 text-slate-600"
               }`}
             >
-              <span className={`h-2 w-2 rounded-full ${isActive ? "bg-[#69bd92] animate-pulse" : "bg-slate-400"}`} />
+              <span className={`h-2 w-2 rounded-full ${isActive ? "bg-emerald-500 animate-pulse" : "bg-slate-400"}`} />
               {isActive ? "Page Published" : "Page Inactive"}
             </span>
           )}
         </div>
 
+        {/* Business Name */}
         <div>
-          <label htmlFor="name" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#467359]">
-            Business Name <span className="text-red-500">*</span>
+          <label htmlFor="biz-name" className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-600">
+            Business or Shop Name *
           </label>
           <input
-            id="name"
+            id="biz-name"
             required
-            maxLength={80}
-            value={name}
-            placeholder="e.g. Artisan Coffee & Roastery"
+            maxLength={60}
+            placeholder="e.g. Nilkanth Cafe or Shreeji Restaurant"
             className={inputClass}
+            value={name}
             onChange={(e) => onNameChange(e.target.value)}
           />
         </div>
 
+        {/* Category */}
         <div>
-          <label htmlFor="category" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#467359]">
-            Category / Industry
+          <label htmlFor="biz-cat" className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-600">
+            Category / Cuisine / Industry
           </label>
           <input
-            id="category"
-            maxLength={40}
-            value={category}
-            placeholder="e.g. Specialty Cafe, Boutique Salon, Studio..."
+            id="biz-cat"
+            maxLength={50}
+            placeholder="e.g. Specialty Tea, Snacks & Bakery or Pure Veg Gujarati Dining"
             className={inputClass}
+            value={category}
             onChange={(e) => setCategory(e.target.value)}
           />
         </div>
 
+        {/* Description / Announcement */}
         <div>
-          <label htmlFor="description" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#467359]">
-            Bio / Description
+          <label htmlFor="biz-desc" className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-600">
+            Store Bio / Today's Announcement
           </label>
           <textarea
-            id="description"
+            id="biz-desc"
             rows={3}
             maxLength={300}
-            value={description}
+            placeholder="e.g. Famous Kadak Masala Chai, Handcrafted Maska Bun & Cold Cocoa. Open 7 AM - 11 PM."
             className={inputClass}
-            placeholder="Brief bio or message customers see when scanning your QR code"
+            value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
-          <div className="mt-1 flex justify-between text-[11px] text-[#70a087]">
-            <span>Shown right below your business name on the public page</span>
-            <span>{description.length}/300</span>
-          </div>
+          <p className="mt-1 text-[11px] text-slate-400">
+            Appears at the top of your mobile bio page right below your store name.
+          </p>
         </div>
 
-        {/* Custom Slug / URL */}
-        <div className="rounded-2xl bg-[#f0f3f0] p-4 ring-1 ring-[#b7dbc4]">
-          <label htmlFor="slug" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#467359]">
-            Public Page Address (Slug) <span className="text-red-500">*</span>
+        {/* URL Slug */}
+        <div>
+          <label htmlFor="biz-slug" className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-600">
+            Vanity URL Slug *
           </label>
-          <div className="flex rounded-xl bg-white shadow-xs ring-1 ring-[#b7dbc4] focus-within:ring-2 focus-within:ring-[#69bd92]">
-            <span className="flex items-center pl-3.5 pr-1 text-xs text-[#70a087] font-mono select-none">
-              <Globe size={14} className="mr-1.5 text-[#467359]" />
+          <div className="relative">
+            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 font-mono text-xs text-slate-400">
               /p/
             </span>
             <input
-              id="slug"
+              id="biz-slug"
               required
               maxLength={40}
+              placeholder="nilkanth-cafe"
+              className={`${inputClass} !pl-10 font-mono text-xs`}
               value={slug}
-              placeholder="my-business"
-              className="w-full bg-transparent py-2.5 pr-3 text-sm font-medium text-[#284737] focus:outline-none"
               onChange={(e) => {
-                setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"));
+                setSlug(slugify(e.target.value));
                 setSlugTouched(true);
               }}
             />
           </div>
 
-          <div className="mt-2 flex items-center justify-between text-xs">
-            <span className="text-[#43745b] font-mono truncate max-w-md">{livePublicUrl}</span>
-            {slug && (
-              <a
-                href={livePublicUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 font-semibold text-[#467359] hover:underline"
-              >
-                Preview <ExternalLink size={12} />
+          <div className="mt-2 flex items-center justify-between text-[11px] text-slate-500">
+            <span className="truncate">Live counter URL: <strong className="text-slate-800">{livePublicUrl}</strong></span>
+            {mode === "edit" && (
+              <a href={livePublicUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1 font-bold text-slate-900 hover:underline">
+                <ExternalLink size={12} /> Test Page
               </a>
             )}
           </div>
-          {mode === "edit" && (
-            <div className="mt-2.5 flex items-center gap-1.5 text-[11px] text-amber-700 bg-amber-50 rounded-lg p-2">
-              <AlertTriangle size={13} className="shrink-0" />
-              <span>Warning: Changing your page address will break any physical QR codes you have already printed.</span>
-            </div>
-          )}
         </div>
 
-        {/* Page status toggle */}
+        {/* Active Toggle in Edit Mode */}
         {mode === "edit" && (
-          <div className="flex items-center justify-between rounded-xl bg-[#f0f3f0]/60 p-3.5 border border-[#b7dbc4]/40">
+          <div className="flex items-center justify-between rounded-2xl bg-slate-50 p-4 border border-slate-200/80">
             <div>
-              <p className="text-sm font-bold text-[#284737]">Page Status</p>
-              <p className="text-xs text-[#70a087]">When turned off, visitors will see an inactive message.</p>
+              <p className="text-xs font-bold text-slate-900">Publish Profile to Public</p>
+              <p className="text-[11px] text-slate-500">When disabled, customers scanning will see a friendly unavailable notice.</p>
             </div>
             <label className="relative inline-flex cursor-pointer items-center">
               <input
@@ -246,47 +236,40 @@ function Form({
                 onChange={(e) => setIsActive(e.target.checked)}
                 className="peer sr-only"
               />
-              <div className="h-6 w-11 rounded-full bg-[#a5afa9] peer-checked:bg-[#69bd92] peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
+              <div className="peer h-6 w-11 rounded-full bg-slate-300 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:bg-slate-950 peer-checked:after:translate-x-full" />
             </label>
           </div>
         )}
 
         {error && (
-          <p role="alert" className="rounded-xl bg-red-50 border border-red-200 px-3.5 py-2.5 text-xs text-red-700 font-medium">
+          <p role="alert" className="rounded-2xl bg-rose-50 border border-rose-200 p-3 text-xs font-semibold text-rose-700">
             {error}
           </p>
         )}
 
-        <div className="pt-2">
-          <button type="submit" disabled={saving} className={`${brandBtn} w-full justify-center text-sm py-3`}>
-            {saving ? (
-              <>
-                <Loader2 size={16} className="animate-spin" /> Saving changes...
-              </>
-            ) : (
-              <>
-                <CheckCircle2 size={16} />
-                {mode === "create" ? "Create Business Profile" : "Save Changes"}
-              </>
-            )}
+        <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100">
+          <button type="submit" disabled={saving} className={`${brandBtn} !py-3 !px-6`}>
+            {saving && <Loader2 size={15} className="animate-spin mr-1" />}
+            {mode === "create" ? "Create Store Hub ↗" : "Save Profile"}
           </button>
         </div>
       </form>
 
       {/* Danger Zone */}
-      {mode === "edit" && (
-        <div className={`${cardClass} border-red-200/80 bg-red-50/20`}>
-          <div className="flex items-center gap-2 text-red-700 font-bold text-sm">
-            <Trash2 size={16} />
-            <span>Danger Zone</span>
-          </div>
-          <p className="mt-1.5 text-xs text-slate-600 leading-relaxed">
-            Permanently delete this business, its connected links, logo, and scan analytics. Your printed QR code will stop functioning immediately.
+      {mode === "edit" && business && (
+        <div className="rounded-3xl border border-rose-200 bg-rose-50/40 p-6 space-y-3">
+          <h3 className="font-display font-black text-rose-950 text-base">Danger Zone</h3>
+          <p className="text-xs text-rose-800 leading-relaxed">
+            Permanently delete your store hub, all customer destination links, and reset your dynamic QR code. This cannot be reversed.
           </p>
-          <div className="mt-4">
-            <button onClick={onDelete} disabled={deleting} className={`${dangerBtn} text-xs py-2 px-3.5`}>
+          <div className="pt-2">
+            <button
+              onClick={onDelete}
+              disabled={deleting}
+              className={`${dangerBtn} !text-xs !py-2.5 !px-4`}
+            >
               {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-              Delete Business Profile
+              Delete Store Hub
             </button>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import AdminLayout from "./components/AdminLayout";
 import DashboardLayout from "./components/DashboardLayout";
+import LandingLayout from "./components/landing/LandingLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminBusinessDetail from "./pages/admin/AdminBusinessDetail";
@@ -12,6 +13,11 @@ import Analytics from "./pages/Analytics";
 import BusinessForm from "./pages/BusinessForm";
 import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
+import FaqPage from "./pages/landing/FaqPage";
+import FeaturesPage from "./pages/landing/FeaturesPage";
+import HowItWorksPage from "./pages/landing/HowItWorksPage";
+import PricingPage from "./pages/landing/PricingPage";
+import SolutionsPage from "./pages/landing/SolutionsPage";
 import Links from "./pages/Links";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
@@ -24,7 +30,16 @@ import Settings from "./pages/Settings";
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+      {/* Multi-Page Client-Side Landing Side */}
+      <Route element={<LandingLayout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/features" element={<FeaturesPage />} />
+        <Route path="/solutions" element={<SolutionsPage />} />
+        <Route path="/how-it-works" element={<HowItWorksPage />} />
+        <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/faq" element={<FaqPage />} />
+      </Route>
+
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route

@@ -14,30 +14,32 @@ export default function StatCard({
   trendPositive?: boolean;
 }) {
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-[#b7dbc4]/70 bg-white p-5 shadow-[0_2px_10px_rgba(70,115,89,0.04)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#69bd92] hover:shadow-[0_8px_20px_rgba(70,115,89,0.08)]">
-      {/* Soft mint background gradient glow on hover */}
-      <div className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full bg-[#e3f7e6]/70 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-      
+    <div className="group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md">
       <div className="flex items-center justify-between">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e3f7e6] text-[#467359] transition-colors group-hover:bg-[#467359] group-hover:text-white">
-          <Icon size={19} />
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-950 text-[#d4f04d] shadow-sm transition-transform group-hover:scale-105">
+          <Icon size={20} />
         </div>
         {trend && (
           <span
-            className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
+            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold ${
               trendPositive
-                ? "bg-[#e3f7e6] text-[#355d48] ring-1 ring-[#b7dbc4]"
-                : "bg-[#f0f3f0] text-[#70a087]"
+                ? "bg-emerald-50 text-emerald-800 border border-emerald-200/80"
+                : "bg-slate-100 text-slate-600 border border-slate-200"
             }`}
           >
+            {trendPositive && <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />}
             {trend}
           </span>
         )}
       </div>
 
       <div className="mt-4">
-        <p className="font-display text-2xl font-bold tracking-tight text-[#284737] tabular-nums">{value}</p>
-        <p className="mt-0.5 text-xs font-medium text-[#70a087]">{label}</p>
+        <p className="font-display text-2xl sm:text-3xl font-black tracking-tight text-slate-950 tabular-nums">
+          {value}
+        </p>
+        <p className="mt-1 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+          {label}
+        </p>
       </div>
     </div>
   );

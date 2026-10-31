@@ -133,28 +133,202 @@ function formatAttributesList(attrs: string[]): string {
   return `${cleaned.slice(0, -1).join(", ")}, and ${cleaned[cleaned.length - 1]}`;
 }
 
-const NEUTRAL_TEMPLATES = [
-  (name: string) =>
-    `I recently visited ${name}. Overall, my experience was smooth and straightforward. Sharing my honest feedback to help future customers know what to expect.`,
-  (name: string) =>
-    `Visited ${name} recently. The service met expectations and the staff was available when needed. A dependable choice if you are in the area.`,
-  (name: string) =>
-    `Sharing my thoughts on ${name} after a recent visit. The overall visit was decent and everything was handled in an orderly manner.`,
-  (name: string) =>
-    `My experience with ${name}: The visit went well and as anticipated. Happy to share my genuine impressions here.`,
+export interface CategorySeoInfo {
+  singular: string;
+  plural: string;
+  localQuery: string;
+  highlightTerm: string;
+}
+
+export const CATEGORY_SEO_INFO: Record<string, CategorySeoInfo> = {
+  "Restaurant / Café": {
+    singular: "cafe & restaurant",
+    plural: "cafes & restaurants",
+    localQuery: "cafes and dining spots in the area",
+    highlightTerm: "food and drinks",
+  },
+  "Salon / Beauty Parlour": {
+    singular: "salon",
+    plural: "hair & beauty salons",
+    localQuery: "salons and parlours in town",
+    highlightTerm: "styling and beauty care",
+  },
+  "Clothing / Fashion Store": {
+    singular: "clothing store",
+    plural: "fashion & clothing stores",
+    localQuery: "clothing stores around here",
+    highlightTerm: "outfits and collections",
+  },
+  "Electronics Store": {
+    singular: "electronics store",
+    plural: "electronics & gadget shops",
+    localQuery: "electronics stores in the area",
+    highlightTerm: "gadgets and electronics",
+  },
+  "Grocery / Retail Shop": {
+    singular: "grocery store",
+    plural: "grocery & retail shops",
+    localQuery: "grocery stores in town",
+    highlightTerm: "daily essentials and groceries",
+  },
+  "Gym / Fitness": {
+    singular: "gym",
+    plural: "gyms & fitness centers",
+    localQuery: "fitness gyms in the area",
+    highlightTerm: "workouts and fitness training",
+  },
+  "Hotel / Accommodation": {
+    singular: "hotel",
+    plural: "hotels & places to stay",
+    localQuery: "places to stay and hotels in the city",
+    highlightTerm: "rooms and hospitality",
+  },
+  "Coaching / Education": {
+    singular: "coaching institute",
+    plural: "coaching & learning institutes",
+    localQuery: "education and coaching centers in town",
+    highlightTerm: "classes and exam mentoring",
+  },
+  "Photography": {
+    singular: "photo studio",
+    plural: "photographers & studios",
+    localQuery: "photographers in the area",
+    highlightTerm: "photoshoots and creative photography",
+  },
+  "Healthcare": {
+    singular: "clinic",
+    plural: "clinics & healthcare centers",
+    localQuery: "healthcare clinics in town",
+    highlightTerm: "care and medical guidance",
+  },
+  "Professional Services": {
+    singular: "service provider",
+    plural: "professional service firms",
+    localQuery: "professional services in the area",
+    highlightTerm: "expert service and support",
+  },
+  "Other": {
+    singular: "business",
+    plural: "spots",
+    localQuery: "local places in town",
+    highlightTerm: "service and customer care",
+  },
+};
+
+export function getCategorySeoInfo(category: string): CategorySeoInfo {
+  if (category && CATEGORY_SEO_INFO[category]) {
+    return CATEGORY_SEO_INFO[category];
+  }
+  const cleanCat = (category || "").trim();
+  const matchedKey = Object.keys(CATEGORY_SEO_INFO).find(
+    (k) =>
+      cleanCat.toLowerCase().includes(k.toLowerCase()) ||
+      k.toLowerCase().includes(cleanCat.toLowerCase())
+  );
+  if (matchedKey) {
+    return CATEGORY_SEO_INFO[matchedKey];
+  }
+  if (cleanCat && cleanCat.toLowerCase() !== "other") {
+    const lower = cleanCat.toLowerCase();
+    return {
+      singular: lower,
+      plural: `${lower} places`,
+      localQuery: `${lower} spots in the area`,
+      highlightTerm: `${lower} service`,
+    };
+  }
+  return CATEGORY_SEO_INFO["Other"];
+}
+
+function formatCustomHighlight(custom?: string): string {
+  if (!custom || !custom.trim()) return "";
+  const cleaned = custom.trim().replace(/^[,.\s]+|[,.\s]+$/g, "");
+  if (!cleaned) return "";
+  return `Special mention for the ${cleaned}—absolutely loved it! `;
+}
+
+// Natural, human-sounding neutral 5-star reviews with local SEO search keywords
+const NEUTRAL_TEMPLATES: ((name: string, seo: CategorySeoInfo, extra: string) => string)[] = [
+  (name, seo, extra) =>
+    `Hands down one of the best ${seo.plural} in town! Visited ${name} and had an amazing experience from start to finish. The team was super welcoming, the place was spotless, and the service was quick. ${extra}Easily a 5-star recommendation for anyone in the area!`,
+  (name, seo, extra) =>
+    `If you're looking for a top-rated ${seo.singular} around here, ${name} is definitely the place to go. Welcoming atmosphere, prompt service, and genuinely great value for money. ${extra}Will definitely be a regular customer from now on. Highly recommended!`,
+  (name, seo, extra) =>
+    `Really impressed with my visit to ${name}! Easily one of the top ${seo.localQuery}. Staff was courteous, everything was organized, and the whole experience was smooth. ${extra}10/10, definitely worth visiting!`,
+  (name, seo, extra) =>
+    `Came across ${name} recently and it truly exceeded expectations. Hands down one of my favorite ${seo.plural} around. Great hospitality, fair pricing, and top quality. ${extra}Definitely giving 5 stars and telling friends and family about this place!`,
+  (name, seo, extra) =>
+    `Such a wonderful experience at ${name}! By far one of the best ${seo.plural} in the area if you want dependable quality and friendly service. ${extra}Everything was handled with so much care. Don't hesitate to check them out!`,
+  (name, seo, extra) =>
+    `Had a fantastic visit to ${name} today. Super clean, polite staff, and top notch service throughout. Honestly one of the best ${seo.plural} in town. ${extra}5 stars all the way!`,
 ];
 
-interface TemplateOptions {
+export interface TemplateOptions {
   businessName: string;
   category: string;
   selectedAttributes: string[];
+  customHighlight?: string;
   previousIndex?: number;
 }
+
+// Natural, human-sounding attribute reviews with high-ranking Google local search keywords
+const ATTRIBUTE_TEMPLATES: ((
+  n: string,
+  f: string,
+  a1: string,
+  rest: string,
+  seo: CategorySeoInfo,
+  extra: string
+) => string)[] = [
+  // 0: Warm & Local Top Pick
+  (n, f, _a1, _rest, seo, extra) =>
+    `Honestly one of the best ${seo.plural} in town! Visited ${n} today and the ${f} was absolutely top tier. Super courteous team, great ambiance, and prompt service. ${extra}Hands down a 5-star experience, highly recommend to anyone in the area!`,
+
+  // 1: Conversational & Search Intent ("If you're looking for...")
+  (n, _f, a1, rest, seo, extra) =>
+    rest
+      ? `If you're looking for a top-rated ${seo.singular} in the area, ${n} is easily the go-to spot! The ${a1} really stood out, and the ${rest} made the visit even better. Friendly staff and top-notch service all around. ${extra}Definitely giving 5 stars!`
+      : `If you're looking for a top-rated ${seo.singular} in the area, ${n} is easily the go-to spot! The ${a1} really stood out. Friendly staff and top-notch service all around. ${extra}Definitely giving 5 stars!`,
+
+  // 2: Local Recommendation & Value Focus
+  (n, f, _a1, _rest, seo, extra) =>
+    `Came by ${n} and was thoroughly impressed. By far one of the top ${seo.localQuery}. What really stood out was the ${f}—everything was clean, well managed, and worth every rupee. ${extra}Will definitely be coming back again soon!`,
+
+  // 3: Enthusiastic 10/10 with Special Shoutout
+  (n, f, _a1, _rest, seo, extra) =>
+    `Such an awesome experience at ${n}! Special shoutout for the ${f}—it definitely set a high benchmark. Easily one of the best ${seo.plural} around here. Super friendly people and fast service. ${extra}10/10 recommended!`,
+
+  // 4: Genuine & Neighborhood Favorite
+  (n, _f, a1, rest, seo, extra) =>
+    rest
+      ? `Stopped by ${n} and had a genuinely fantastic time. Loved the ${a1}, and the team really delivered on the ${rest}. Easily one of the most reliable ${seo.plural} in the neighborhood. ${extra}Keep up the great work guys!`
+      : `Stopped by ${n} and had a genuinely fantastic time. The ${a1} was totally on point and the hospitality was excellent. Easily one of the most reliable ${seo.plural} in the neighborhood. ${extra}Keep up the great work guys!`,
+
+  // 5: Consistent Quality & 5 Stars
+  (n, f, _a1, _rest, seo, extra) =>
+    `One of the best ${seo.plural} in town without question! The ${f} at ${n} was consistently top quality. Super helpful team, welcoming vibe, and great attention to detail. ${extra}A solid 5-star place in the area!`,
+
+  // 6: Smooth Experience & Top Recommendation
+  (n, _f, a1, rest, seo, extra) =>
+    rest
+      ? `Had a super smooth visit to ${n}. Particularly impressed with the ${a1}, and also really appreciated the ${rest}. Hands down one of the best ${seo.localQuery}. ${extra}Don't think twice before visiting—top quality all the way!`
+      : `Had a super smooth visit to ${n}. Particularly impressed with the ${a1}. Hands down one of the best ${seo.localQuery}. ${extra}Don't think twice before visiting—top quality all the way!`,
+
+  // 7: Exceeded Expectations & High Standard
+  (n, f, _a1, _rest, seo, extra) =>
+    `Very satisfied with my experience at ${n}! The ${f} definitely exceeded expectations. Easily ranks among the top ${seo.plural} in the area for both quality and customer care. ${extra}Prompt service, fair pricing, and courteous staff. Highly recommended!`,
+
+  // 8: Local Go-To & First-Time Visitor
+  (n, f, _a1, _rest, seo, extra) =>
+    `First time visiting ${n} and I was completely blown away! The ${f} was top notch, and the staff made sure everything was smooth and comfortable. Truly one of the best ${seo.plural} around here. ${extra}Will definitely be recommending this to everyone!`,
+];
 
 export function generateReviewDraft(options: TemplateOptions): { draft: string; templateIndex: number } {
   const name = options.businessName.trim() || "this business";
   const attrs = options.selectedAttributes;
   const prev = options.previousIndex ?? -1;
+  const seo = getCategorySeoInfo(options.category);
+  const extra = formatCustomHighlight(options.customHighlight);
 
   if (attrs.length === 0) {
     const total = NEUTRAL_TEMPLATES.length;
@@ -163,7 +337,7 @@ export function generateReviewDraft(options: TemplateOptions): { draft: string; 
       nextIndex = (nextIndex + 1) % total;
     }
     return {
-      draft: NEUTRAL_TEMPLATES[nextIndex](name),
+      draft: NEUTRAL_TEMPLATES[nextIndex](name, seo, extra),
       templateIndex: nextIndex,
     };
   }
@@ -172,42 +346,12 @@ export function generateReviewDraft(options: TemplateOptions): { draft: string; 
   const firstAttr = attrs[0].toLowerCase();
   const restAttrs = attrs.length > 1 ? formatAttributesList(attrs.slice(1)) : "";
 
-  const templates: ((n: string, f: string, a1: string, rest: string) => string)[] = [
-    // 0: Short & Balanced
-    (n, f) =>
-      `Visited ${n} recently. I specifically took note of the ${f}. Overall, everything was well-managed and met expectations. Pleased to share my genuine feedback.`,
-
-    // 1: Medium & Expressive
-    (n, _f, a1, rest) =>
-      rest
-        ? `Had an opportunity to visit ${n}. When it came to ${a1}, the standards were quite clear, and the ${rest} also left a good impression. Appreciate the attention to detail from the team.`
-        : `Had an opportunity to visit ${n}. When it came to ${a1}, the experience was well-handled and positive. Appreciate the care from the team.`,
-
-    // 2: Structured & Clear
-    (n, f) =>
-      `Sharing my review for ${n}. My experience was centered around the ${f}. The staff was attentive and the overall quality was consistent. Glad to recommend them based on this visit.`,
-
-    // 3: Concise & Direct
-    (n, f) =>
-      `Had a good experience at ${n}. The ${f} definitely stood out during my visit. Would consider visiting again.`,
-
-    // 4: Balanced & Constructive
-    (n, _f, a1, rest) =>
-      rest
-        ? `Visited ${n} recently and wanted to leave some honest feedback. The ${a1} was handled well, and the ${rest} contributed to a solid overall experience. Keep up the good work!`
-        : `Visited ${n} recently and wanted to leave some honest feedback. The ${a1} stood out positively and made for a smooth visit. Keep up the good work!`,
-
-    // 5: Thoughtful & Personal
-    (n, f) =>
-      `A dependable visit to ${n}. What stood out most to me was the ${f}. Overall, a pleasant experience and worth sharing.`,
-  ];
-
-  const total = templates.length;
+  const total = ATTRIBUTE_TEMPLATES.length;
   let nextIndex = Math.floor(Math.random() * total);
   if (nextIndex === prev && total > 1) {
     nextIndex = (nextIndex + 1) % total;
   }
 
-  const draft = templates[nextIndex](name, formatted, firstAttr, restAttrs);
+  const draft = ATTRIBUTE_TEMPLATES[nextIndex](name, formatted, firstAttr, restAttrs, seo, extra);
   return { draft, templateIndex: nextIndex };
 }

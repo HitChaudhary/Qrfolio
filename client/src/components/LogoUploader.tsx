@@ -63,7 +63,7 @@ export default function LogoUploader({
     <div className="space-y-3">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         {/* Logo preview box */}
-        <div className="relative flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-[#b7dbc4] bg-[#f0f3f0] transition-all group hover:border-[#69bd92]">
+        <div className="relative flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 transition-all group hover:border-slate-900">
           {business.logoUrl ? (
             <img
               src={business.logoUrl}
@@ -72,13 +72,13 @@ export default function LogoUploader({
               className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
           ) : (
-            <div className="flex flex-col items-center justify-center text-[#70a087]">
+            <div className="flex flex-col items-center justify-center text-slate-400">
               <ImagePlus size={24} />
-              <span className="mt-1 text-[10px] font-medium text-[#70a087]">No logo</span>
+              <span className="mt-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">No logo</span>
             </div>
           )}
           {busy && (
-            <div className="absolute inset-0 flex items-center justify-center bg-[#284737]/60 backdrop-blur-xs">
+            <div className="absolute inset-0 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs">
               <Loader2 className="animate-spin text-white" size={24} />
             </div>
           )}
@@ -94,7 +94,7 @@ export default function LogoUploader({
               className={secondaryBtn}
             >
               <UploadCloud size={16} />
-              {business.logoUrl ? "Replace Logo" : "Upload Brand Logo"}
+              {business.logoUrl ? "Replace Brand Logo" : "Upload Brand Logo"}
             </button>
             {business.logoUrl && (
               <button type="button" disabled={busy} onClick={onRemove} className={dangerBtn}>
@@ -102,8 +102,8 @@ export default function LogoUploader({
               </button>
             )}
           </div>
-          <p className="flex items-center gap-1.5 text-xs text-[#70a087]">
-            <Sparkles size={12} className="text-[#467359] shrink-0" />
+          <p className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+            <Sparkles size={12} className="text-[#d4f04d] shrink-0" />
             Recommended: Square PNG/JPG up to 2MB. Logo appears in your QR center & bio header.
           </p>
         </div>
@@ -111,7 +111,7 @@ export default function LogoUploader({
       </div>
 
       {error && (
-        <p role="alert" className="rounded-xl bg-red-50 p-3 text-xs font-medium text-red-700 border border-red-200">
+        <p role="alert" className="rounded-2xl bg-rose-50 p-3 text-xs font-semibold text-rose-700 border border-rose-200">
           {error}
         </p>
       )}

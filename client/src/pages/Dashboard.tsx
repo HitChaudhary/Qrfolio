@@ -9,10 +9,14 @@ import {
   Loader2,
   Pencil,
   Plus,
+  Printer,
   QrCode,
   ScanLine,
+  Share2,
   Sparkles,
+  Store,
   TrendingUp,
+  Zap,
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -24,8 +28,9 @@ import { useAnalytics } from "../hooks/useAnalytics";
 import { useBusiness } from "../hooks/useBusiness";
 import { useQr } from "../hooks/useQr";
 import { publicUrl } from "../lib/config";
-import { downloadPng } from "../lib/qr";
+import { downloadPng, printQr } from "../lib/qr";
 import { brandBtn, secondaryBtn } from "../lib/ui";
+import { BrandLogo } from "../components/BrandLogos";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -42,19 +47,19 @@ export default function Dashboard() {
 
   if (!business) {
     return (
-      <div className="relative overflow-hidden rounded-3xl border border-[#b7dbc4] bg-white p-8 sm:p-12 text-center shadow-lg shadow-[#467359]/5">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#e3f7e6] text-[#467359] mb-6">
-          <QrCode size={32} />
+      <div className="relative overflow-hidden rounded-3xl border border-slate-200/90 bg-white p-8 sm:p-14 text-center shadow-xl">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-950 text-[#d4f04d] mb-6 shadow-md">
+          <QrCode size={34} />
         </div>
-        <h1 className="font-display text-2xl sm:text-3xl font-bold text-[#284737]">
-          Welcome to QrFolio, {user?.name}!
+        <h1 className="font-display text-2xl sm:text-4xl font-black text-slate-950 tracking-tight">
+          Welcome to your Merchant Studio, {user?.name}!
         </h1>
-        <p className="mx-auto mt-3 max-w-md text-[#43745b] text-sm sm:text-base leading-relaxed">
-          Create your business profile to generate your branded dynamic QR code and launch your mobile bio page.
+        <p className="mx-auto mt-3 max-w-lg text-slate-600 text-sm sm:text-base leading-relaxed">
+          Create your business profile to generate your permanent dynamic QR standee and launch your fast mobile food menu, WhatsApp ordering, and Google reviews page.
         </p>
         <div className="mt-8 flex justify-center">
-          <Link to="/dashboard/business/new" className={`${brandBtn} !px-6 !py-3.5 !text-base`}>
-            <Plus size={18} /> Create Your Business Hub
+          <Link to="/dashboard/business/new" className={`${brandBtn} !px-7 !py-3.5 !text-sm`}>
+            <Plus size={18} /> Create Your Shop Hub ↗
           </Link>
         </div>
       </div>
@@ -65,65 +70,91 @@ export default function Dashboard() {
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
-      toast.show("Link copied to clipboard");
+      toast.show("Customer link copied to clipboard");
       setTimeout(() => setCopied(false), 2000);
     } catch {
       toast.show("Could not copy the link", "error");
     }
   }
 
+  function handlePrint() {
+    if (!qr || !business) return;
+    printQr(qr.pngDataUrl, business.businessName);
+  }
+
+  const activeLinksCount = business.links.length;
+
   return (
-    <div className="space-y-6">
-      {/* Top Welcome & Status Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div className="space-y-6 sm:space-y-8">
+      {/* Top Welcome & Store Status Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="font-display text-2xl font-bold tracking-tight text-[#284737] sm:text-3xl">
-            Overview
-          </h1>
-          <p className="text-xs sm:text-sm text-[#70a087] mt-0.5">
-            Manage your dynamic QR code and monitor real-time scan performance.
+          <div className="flex items-center gap-2.5">
+            <h1 className="font-display text-2xl sm:text-3xl font-black tracking-tight text-slate-950">
+              {business.businessName}
+            </h1>
+            <span
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-0.5 text-xs font-bold ${
+                business.isActive
+                  ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                  : "bg-amber-50 text-amber-800 border border-amber-200"
+              }`}
+            >
+              <span className={`h-2 w-2 rounded-full ${business.isActive ? "bg-emerald-500 animate-pulse" : "bg-amber-500"}`} />
+              {business.isActive ? "Live on Counter" : "Draft Mode"}
+            </span>
+          </div>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            Permanent Smart Dynamic QR Code • Print once, update links anytime with ₹0 reprint cost.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <span
-            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
-              business.isActive
-                ? "bg-[#e3f7e6] text-[#355d48] ring-1 ring-[#b7dbc4]"
-                : "bg-amber-50 text-amber-700 ring-1 ring-amber-600/20"
-            }`}
+
+        {/* Quick Top Actions */}
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <a
+            href={url}
+            target="_blank"
+            rel="noreferrer"
+            className={`${secondaryBtn} !py-2 !px-4 text-xs font-bold`}
           >
-            <span className={`h-2 w-2 rounded-full ${business.isActive ? "bg-[#69bd92] animate-pulse" : "bg-amber-500"}`} />
-            {business.isActive ? "Live & Active" : "Draft Mode"}
-          </span>
+            <ExternalLink size={14} /> Preview Customer Bio
+          </a>
+          <Link to="/dashboard/links?add=1" className={`${brandBtn} !py-2 !px-4 text-xs font-black`}>
+            <Plus size={14} /> Add New Link
+          </Link>
         </div>
       </div>
 
-      {/* Main QR Code & Profile Card */}
-      <div className="relative overflow-hidden rounded-3xl border border-[#b7dbc4]/80 bg-white p-6 sm:p-8 shadow-[0_4px_24px_rgba(70,115,89,0.06)] ring-1 ring-[#467359]/5">
-        {/* Subtle background ambient blur */}
-        <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#dff6e2]/60 blur-2xl" />
+      {/* Main Merchant Station Card (Hero Card for Local Shop Owner) */}
+      <div className="relative overflow-hidden rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-xs">
+        {/* Soft background ambient glow */}
+        <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-sky-100/60 blur-3xl" />
+        <div className="pointer-events-none absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-[#d4f04d]/20 blur-3xl" />
 
         <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center">
           {/* QR Code Container */}
-          <div className="flex flex-col items-center justify-center self-center rounded-2xl border border-[#b7dbc4] bg-[#f0f3f0]/60 p-4 shadow-xs lg:self-stretch">
-            <div className="relative flex h-48 w-48 items-center justify-center rounded-xl bg-white p-2 shadow-xs ring-1 ring-[#b7dbc4]">
+          <div className="flex flex-col items-center justify-center self-center rounded-2xl border border-slate-200/90 bg-slate-50 p-4 shadow-2xs lg:self-stretch">
+            <div className="relative flex h-48 w-48 items-center justify-center rounded-xl bg-white p-2.5 shadow-sm border border-slate-200">
               {qr ? (
                 <img
                   src={qr.pngDataUrl}
-                  alt="Your QR code"
+                  alt="Your Dynamic QR code"
                   className="h-full w-full rounded-lg transition-transform duration-200 hover:scale-105"
                 />
               ) : (
-                <Loader2 className="animate-spin text-[#467359]" size={32} />
+                <Loader2 className="animate-spin text-slate-900" size={32} />
               )}
             </div>
-            <p className="mt-2.5 font-mono text-[11px] text-[#70a087]">Scan Level H • Dynamic</p>
+            <div className="mt-3 flex items-center gap-1.5 text-[10px] font-bold text-slate-600 uppercase tracking-wider">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#d4f04d]" />
+              <span>Level-H • Spill & Chai Proof</span>
+            </div>
           </div>
 
-          {/* Business Details & Actions */}
+          {/* Business Details & Action Suite */}
           <div className="min-w-0 flex-1 space-y-4">
             <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-tr from-[#f0f3f0] to-[#e3f7e6] ring-1 ring-[#b7dbc4]">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-slate-100 border border-slate-200">
                 {business.logoUrl ? (
                   <img
                     src={business.logoUrl}
@@ -132,15 +163,24 @@ export default function Dashboard() {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <ImagePlus size={22} className="text-[#70a087]" />
+                  <Store size={24} className="text-slate-400" />
                 )}
               </div>
               <div className="min-w-0">
-                <h2 className="truncate font-display text-xl font-bold tracking-tight text-[#284737] sm:text-2xl">
-                  {business.businessName}
-                </h2>
+                <div className="flex items-center gap-2">
+                  <h2 className="truncate font-display text-xl sm:text-2xl font-black tracking-tight text-slate-950">
+                    {business.businessName}
+                  </h2>
+                  <Link
+                    to="/dashboard/business/edit"
+                    title="Edit profile"
+                    className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                  >
+                    <Pencil size={15} />
+                  </Link>
+                </div>
                 {business.category && (
-                  <span className="inline-block truncate rounded-md bg-[#e3f7e6] px-2 py-0.5 text-xs font-semibold text-[#355d48] mt-0.5">
+                  <span className="inline-block truncate rounded-full bg-slate-100 px-3 py-0.5 text-xs font-bold text-slate-700 mt-1">
                     {business.category}
                   </span>
                 )}
@@ -148,120 +188,191 @@ export default function Dashboard() {
             </div>
 
             {/* Public Link Box */}
-            <div className="flex items-center gap-2 rounded-xl border border-[#b7dbc4] bg-[#f0f3f0]/80 p-2 text-xs sm:text-sm">
-              <span className="min-w-0 flex-1 truncate font-mono text-[#284737] px-2 select-all">
-                {url}
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:p-3.5">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                Permanent Counter URL
               </span>
-              <button
-                onClick={copy}
-                aria-label="Copy public link"
-                className="flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 font-medium text-[#43745b] shadow-2xs ring-1 ring-[#b7dbc4] hover:bg-[#e3f7e6] hover:text-[#284737] transition-colors cursor-pointer"
-              >
-                {copied ? (
-                  <>
-                    <Check size={14} className="text-[#69bd92]" />
-                    <span className="text-[#355d48] font-semibold">Copied</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy size={14} />
-                    <span>Copy</span>
-                  </>
-                )}
-              </button>
+              <div className="mt-1 flex items-center justify-between gap-2">
+                <p className="truncate font-mono text-xs sm:text-sm font-semibold text-slate-900">
+                  {url}
+                </p>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <button
+                    onClick={copy}
+                    className="flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                    title="Copy public link"
+                  >
+                    {copied ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
+                  </button>
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                    title="Open in new tab"
+                  >
+                    <ExternalLink size={14} />
+                  </a>
+                </div>
+              </div>
             </div>
 
-            {/* Primary & Secondary Action Buttons */}
+            {/* Quick Action Buttons for Counter Materials */}
             <div className="flex flex-wrap items-center gap-2.5 pt-1">
-              <Link to="/dashboard/links?add=1" className={brandBtn}>
-                <Plus size={16} /> Add New Link
-              </Link>
-              <Link to="/dashboard/business/edit" className={secondaryBtn}>
-                <Pencil size={15} /> Edit Profile
-              </Link>
-              <a
-                href={url}
-                target="_blank"
-                rel="noreferrer"
-                className={secondaryBtn}
-              >
-                <ExternalLink size={15} /> View Live Page
-              </a>
               <button
                 disabled={!qr}
-                onClick={() => qr && downloadPng(qr.pngDataUrl, `${business.slug}-qr.png`)}
-                className={secondaryBtn}
+                onClick={() => qr && downloadPng(qr.pngDataUrl, `${business.slug}-qrfolio.png`)}
+                className={`${brandBtn} !py-2.5 !px-4 text-xs font-black`}
               >
-                <Download size={15} /> Download PNG
+                <Download size={14} /> Download 4K QR Standee
               </button>
+              <button
+                disabled={!qr}
+                onClick={handlePrint}
+                className={`${secondaryBtn} !py-2.5 !px-4 text-xs font-bold`}
+              >
+                <Printer size={14} /> Print Table Insert
+              </button>
+              <Link to="/dashboard/qr" className={`${secondaryBtn} !py-2.5 !px-4 text-xs font-bold`}>
+                <Sparkles size={14} /> Vector SVG Studio ↗
+              </Link>
             </div>
-
-            {!business.isActive && (
-              <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs font-medium text-amber-800">
-                ⚠️ Your public page is currently inactive. Visitors who scan your QR will see a "page not available" notice.
-              </p>
-            )}
           </div>
         </div>
       </div>
 
-      {/* KPI Stats Grid */}
-      <div className="grid grid-cols-2 gap-3.5 sm:gap-4 md:grid-cols-4">
+      {/* KPI Cards: Scans & Conversions */}
+      <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           Icon={ScanLine}
           label="Total Scans"
-          value={stats?.totalScans ?? business.scanCount}
-          trend="+100% dynamic"
-          trendPositive
+          value={stats?.totalScans ?? 0}
+          trend="Permanent Counter QR"
+          trendPositive={true}
         />
-        <StatCard Icon={CalendarDays} label="Scans Today" value={stats?.today ?? "0"} />
-        <StatCard Icon={TrendingUp} label="Scans This Month" value={stats?.thisMonth ?? "0"} />
-        <StatCard Icon={Link2} label="Active Links" value={business.links.length} />
+        <StatCard
+          Icon={CalendarDays}
+          label="Scans Today"
+          value={stats?.today ?? 0}
+          trend="Live Scan Counter"
+          trendPositive={true}
+        />
+        <StatCard
+          Icon={TrendingUp}
+          label="Taps & Conversions"
+          value={stats?.totalClicks ?? 0}
+          trend={`${stats && stats.totalScans > 0 ? Math.round((stats.totalClicks / stats.totalScans) * 100) : 0}% tap rate`}
+          trendPositive={true}
+        />
+        <StatCard
+          Icon={Link2}
+          label="Active Destinations"
+          value={activeLinksCount}
+          trend="0s Instant Mobile Update"
+          trendPositive={true}
+        />
       </div>
 
-      {/* Quick Setup Checklist */}
-      <div className="rounded-2xl border border-[#b7dbc4]/80 bg-white p-5 sm:p-6 shadow-xs">
-        <div className="flex items-center gap-2 mb-4">
-          <Sparkles size={18} className="text-[#467359]" />
-          <h3 className="font-bold text-sm text-[#284737] uppercase tracking-wider">
-            QrFolio Quick Checklist
-          </h3>
+      {/* Store Quick Management Grid */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* Active Customer Destinations (2 Cols) */}
+        <div className="rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-7 shadow-xs lg:col-span-2 space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div>
+              <h2 className="font-display font-black text-lg text-slate-950">
+                Customer Scan Destinations
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                These buttons appear on your customers' phones when they point their camera at your counter stand.
+              </p>
+            </div>
+            <Link to="/dashboard/links" className="text-xs font-black text-slate-950 hover:underline">
+              Manage All ({business.links.length}) ↗
+            </Link>
+          </div>
+
+          {business.links.length === 0 ? (
+            <div className="py-10 text-center">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400 mb-3">
+                <Link2 size={22} />
+              </div>
+              <p className="text-sm font-bold text-slate-900">No links added yet</p>
+              <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
+                Add your Google Review modal, WhatsApp ordering number, Instagram, or daily food menu.
+              </p>
+              <Link to="/dashboard/links?add=1" className={`${brandBtn} mt-4`}>
+                <Plus size={14} /> Add First Link
+              </Link>
+            </div>
+          ) : (
+            <ul className="space-y-2.5">
+              {business.links.slice(0, 5).map((l) => (
+                <li
+                  key={l.id}
+                  className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/60 p-3.5 transition-colors hover:bg-slate-50"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white border border-slate-200 shadow-2xs">
+                      <BrandLogo name={l.icon} size={20} />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-xs sm:text-sm font-bold text-slate-950">{l.title}</p>
+                      <p className="truncate text-[11px] text-slate-500 font-mono">{l.url}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    {l.icon === "google-reviews" && l.enableReviewAssistant && (
+                      <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-[#d4f04d]/40 px-2.5 py-0.5 text-[10px] font-black text-slate-950">
+                        <Sparkles size={11} /> 5★ Booster
+                      </span>
+                    )}
+                    <span className="rounded-xl bg-white px-2.5 py-1 text-xs font-bold text-slate-800 border border-slate-200 shadow-2xs tabular-nums">
+                      {stats?.links.find((s) => s.id === l.id)?.clicks ?? 0} taps
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
-        <div className="grid gap-3 sm:grid-cols-3">
-          <div className="flex items-start gap-3 rounded-xl bg-[#f0f3f0] p-3.5">
-            <div className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold ${business.logoUrl ? "bg-[#e3f7e6] text-[#355d48]" : "bg-[#b7dbc4] text-[#284737]"}`}>
-              {business.logoUrl ? <Check size={12} /> : "1"}
+
+        {/* Counter QR Stand Tips & Guide */}
+        <div className="rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-7 shadow-xs space-y-4">
+          <div className="flex items-center gap-2 text-slate-950">
+            <Zap size={18} className="text-amber-500" />
+            <h3 className="font-display font-black text-base">Counter Placement Tips</h3>
+          </div>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            Local shop owners in Gujarat & India report up to <strong>+42% more Google reviews</strong> by placing an acrylic standee next to the UPI payment QR.
+          </p>
+
+          <div className="space-y-3 pt-2 border-t border-slate-100">
+            <div className="rounded-2xl bg-slate-50 p-3 border border-slate-200/80">
+              <span className="text-[10px] font-bold uppercase text-slate-500">Billing Counter Stand</span>
+              <p className="text-xs text-slate-800 font-semibold mt-0.5">
+                Customers scan while waiting for their bill or order parcel.
+              </p>
             </div>
-            <div>
-              <p className="text-xs font-semibold text-[#284737]">Add Brand Logo</p>
-              <p className="text-[11px] text-[#70a087] mt-0.5">
-                {business.logoUrl ? "Completed" : "Upload your logo to embed in QR center"}
+            <div className="rounded-2xl bg-slate-50 p-3 border border-slate-200/80">
+              <span className="text-[10px] font-bold uppercase text-slate-500">Dining Table Tent</span>
+              <p className="text-xs text-slate-800 font-semibold mt-0.5">
+                Fast digital menu & guest WiFi connection with zero paper reprint cost.
               </p>
             </div>
           </div>
 
-          <div className="flex items-start gap-3 rounded-xl bg-[#f0f3f0] p-3.5">
-            <div className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold ${business.links.length > 0 ? "bg-[#e3f7e6] text-[#355d48]" : "bg-[#b7dbc4] text-[#284737]"}`}>
-              {business.links.length > 0 ? <Check size={12} /> : "2"}
-            </div>
-            <div>
-              <p className="text-xs font-semibold text-[#284737]">Add Social & Menu Links</p>
-              <p className="text-[11px] text-[#70a087] mt-0.5">
-                {business.links.length > 0 ? `${business.links.length} links added` : "Add Instagram, Maps, Menu, or WhatsApp"}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3 rounded-xl bg-[#f0f3f0] p-3.5">
-            <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#b7dbc4] text-[#284737] text-xs font-bold">
-              3
-            </div>
-            <div>
-              <p className="text-xs font-semibold text-[#284737]">Print & Display</p>
-              <p className="text-[11px] text-[#70a087] mt-0.5">
-                Download SVG or PNG and place on tables & receipts
-              </p>
-            </div>
+          <div className="pt-2">
+            <Link
+              to="/dashboard/qr"
+              className="flex items-center justify-between rounded-2xl bg-slate-950 p-3.5 text-white hover:bg-slate-900 transition-colors shadow-sm"
+            >
+              <div>
+                <span className="text-xs font-bold block">Open QR Studio</span>
+                <span className="text-[10px] text-slate-400">Download SVG, print templates</span>
+              </div>
+              <span className="text-xs font-black text-[#d4f04d]">Export ↗</span>
+            </Link>
           </div>
         </div>
       </div>

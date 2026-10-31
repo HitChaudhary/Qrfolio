@@ -1,6 +1,6 @@
 import {
   ArrowLeft, CalendarDays, Copy, Download, ExternalLink, ImagePlus, Loader2, MousePointerClick,
-  Power, ScanLine, Trash2, TrendingUp,
+  Power, ScanLine, Store, Trash2, TrendingUp,
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -17,6 +17,7 @@ import { getLinkType } from "../../lib/linkTypes";
 import { downloadPng } from "../../lib/qr";
 import type { AdminBusinessDetailData } from "../../lib/types";
 import { cardClass, dangerBtn, secondaryBtn } from "../../lib/ui";
+import { BrandLogo } from "../../components/BrandLogos";
 
 type Action = "toggle" | "delete" | null;
 
@@ -60,7 +61,7 @@ export default function AdminBusinessDetail() {
   async function copyUrl() {
     try {
       await navigator.clipboard.writeText(url);
-      toast.show("Link copied");
+      toast.show("Link copied to clipboard");
     } catch {
       toast.show("Could not copy the link", "error");
     }
@@ -75,146 +76,127 @@ export default function AdminBusinessDetail() {
   ];
 
   return (
-    <div className="space-y-5">
-      <Link to="/admin/businesses" className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#467359] hover:underline">
-        <ArrowLeft size={15} /> All businesses
+    <div className="space-y-6 animate-fade-in">
+      <Link to="/admin/businesses" className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-slate-950 transition-colors">
+        <ArrowLeft size={14} /> Back to Business Registry
       </Link>
 
       {/* Business information */}
       <section className={cardClass}>
-        <div className="flex flex-col gap-5 sm:flex-row">
-          <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-[#e3f7e6] text-[#467359] ring-1 ring-[#b7dbc4]">
-            {biz.logoUrl ? <img src={biz.logoUrl} alt={`${biz.businessName} logo`} className="h-full w-full object-cover" /> : <ImagePlus size={28} />}
+        <div className="flex flex-col gap-6 sm:flex-row">
+          <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-3xl bg-slate-100 border border-slate-200">
+            {biz.logoUrl ? (
+              <img src={biz.logoUrl} alt={`${biz.businessName} logo`} className="h-full w-full object-cover" />
+            ) : (
+              <Store size={32} className="text-slate-400" />
+            )}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2.5">
-              <h1 className="text-2xl font-bold text-[#284737]">{biz.businessName}</h1>
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="font-display text-2xl sm:text-3xl font-black text-slate-950">{biz.businessName}</h1>
               <StatusBadge active={biz.isActive} />
             </div>
-            <p className="mt-1.5 text-sm text-[#43745b]">{biz.description || <span className="text-[#91b49e]">No description</span>}</p>
-            <p className="mt-2 text-sm text-[#70a087]">
-              Owner:{" "}
+            <p className="mt-1.5 text-xs sm:text-sm text-slate-600 font-medium">
+              {biz.description || <span className="text-slate-400 italic">No storefront announcement set</span>}
+            </p>
+            <p className="mt-2 text-xs text-slate-500">
+              Registered Owner:{" "}
               {biz.owner ? (
-                <Link to={`/admin/users/${biz.owner.id}`} className="font-semibold text-[#284737] hover:underline">
+                <Link to={`/admin/users/${biz.owner.id}`} className="font-bold text-slate-950 hover:underline">
                   {biz.owner.name} ({biz.owner.email})
                 </Link>
               ) : (
                 "Unknown"
               )}
             </p>
-            <dl className="mt-4 grid grid-cols-2 gap-4 text-sm lg:grid-cols-4">
+            <dl className="mt-4 grid grid-cols-2 gap-4 text-xs lg:grid-cols-4">
               {facts.map(([label, value]) => (
                 <div key={label} className="min-w-0">
-                  <dt className="text-[11px] font-bold uppercase tracking-wider text-[#91b49e]">{label}</dt>
-                  <dd className="mt-0.5 break-words font-semibold text-[#284737]">{value}</dd>
+                  <dt className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{label}</dt>
+                  <dd className="mt-0.5 break-words font-mono font-bold text-slate-800">{value}</dd>
                 </div>
               ))}
             </dl>
           </div>
         </div>
-        <div className="mt-5 flex flex-wrap gap-2 border-t border-[#e3f7e6] pt-4">
-          <a href={url} target="_blank" rel="noreferrer" className={secondaryBtn}><ExternalLink size={16} /> View public profile</a>
-          <button onClick={() => setAction("toggle")} className={secondaryBtn}>
-            <Power size={16} /> {biz.isActive ? "Deactivate" : "Activate"}
+
+        <div className="mt-6 flex flex-wrap gap-2.5 border-t border-slate-100 pt-4">
+          <a href={url} target="_blank" rel="noreferrer" className={secondaryBtn}>
+            <ExternalLink size={14} /> View Public Page
+          </a>
+          <button onClick={copyUrl} className={secondaryBtn}>
+            <Copy size={14} /> Copy Public URL
           </button>
-          <button onClick={() => setAction("delete")} className={`${dangerBtn} sm:ml-auto`}><Trash2 size={16} /> Delete business</button>
+          <button onClick={() => setAction("toggle")} className={secondaryBtn}>
+            <Power size={14} /> {biz.isActive ? "Deactivate" : "Activate"}
+          </button>
+          <button onClick={() => setAction("delete")} className={`${dangerBtn} sm:ml-auto`}>
+            <Trash2 size={14} /> Delete Business
+          </button>
         </div>
       </section>
 
       {/* Analytics */}
       <div className="grid grid-cols-2 gap-3.5 lg:grid-cols-4">
-        <StatCard Icon={ScanLine} label="Total scans" value={formatNumber(a.totalScans)} />
-        <StatCard Icon={CalendarDays} label="Scans today" value={formatNumber(a.today)} />
-        <StatCard Icon={TrendingUp} label="This month" value={formatNumber(a.thisMonth)} />
-        <StatCard Icon={MousePointerClick} label="Link clicks" value={formatNumber(a.totalClicks)} />
+        <StatCard Icon={ScanLine} label="Total Scans" value={formatNumber(a.totalScans)} />
+        <StatCard Icon={CalendarDays} label="Scans Today" value={formatNumber(a.today)} />
+        <StatCard Icon={TrendingUp} label="This Month" value={formatNumber(a.thisMonth)} />
+        <StatCard Icon={MousePointerClick} label="Link Taps" value={formatNumber(a.totalClicks)} />
       </div>
 
-      {/* Links */}
+      {/* Destinations list */}
       <section className="space-y-3">
-        <h2 className="font-bold text-[#284737]">Links ({data.links.length})</h2>
+        <h2 className="font-display font-black text-slate-950 text-base">Active Destinations ({data.links.length})</h2>
         <TableCard>
           <table className="w-full min-w-[620px]">
-            <thead className="border-b border-[#e3f7e6] bg-[#f7faf7]">
+            <thead>
               <tr>
                 <th className={th}>#</th>
+                <th className={th}>Platform</th>
                 <th className={th}>Title</th>
-                <th className={th}>Type</th>
-                <th className={th}>URL</th>
-                <th className={th}>Status</th>
-                <th className={th}>Clicks</th>
+                <th className={th}>Destination URL</th>
+                <th className={`${th} text-right`}>Taps</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#e3f7e6]">
-              {data.links.length === 0 && <EmptyRow colSpan={6} text="No links added yet." />}
-              {data.links.map((l) => {
-                const { Icon, label } = getLinkType(l.icon);
-                return (
-                  <tr key={l.id} className="hover:bg-[#f7faf7]">
-                    <td className={`${td} tabular-nums`}>{l.position + 1}</td>
-                    <td className={`${td} font-semibold text-[#284737]`}>{l.title}</td>
-                    <td className={td}><span className="inline-flex items-center gap-1.5"><Icon size={15} /> {label}</span></td>
-                    <td className={`${td} max-w-[16rem]`}><p className="truncate" title={l.url}>{l.url}</p></td>
-                    <td className={td}><StatusBadge active={l.isActive} /></td>
-                    <td className={`${td} tabular-nums`}>{l.clicks}</td>
-                  </tr>
-                );
-              })}
+            <tbody className="divide-y divide-slate-100">
+              {data.links.length === 0 && <EmptyRow colSpan={5} text="No destination links configured." />}
+              {data.links.map((l, i) => (
+                <tr key={l.id} className="hover:bg-slate-50/70 transition-colors">
+                  <td className={`${td} font-bold text-slate-400 tabular-nums`}>{i + 1}</td>
+                  <td className={td}>
+                    <div className="flex items-center gap-2">
+                      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-50 border border-slate-200">
+                        <BrandLogo name={l.icon} size={15} />
+                      </span>
+                      <span className="capitalize font-bold text-slate-800 text-xs">{l.icon}</span>
+                    </div>
+                  </td>
+                  <td className={`${td} font-bold text-slate-950`}>{l.title}</td>
+                  <td className={`${td} font-mono text-xs text-slate-400 truncate max-w-xs`}>{l.url}</td>
+                  <td className={`${td} text-right font-black text-slate-950 tabular-nums`}>{formatNumber(l.clicks)}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </TableCard>
       </section>
 
-      {/* QR information */}
-      <section className={cardClass}>
-        <h2 className="font-bold text-[#284737]">QR code</h2>
-        <div className="mt-4 flex flex-col gap-5 sm:flex-row">
-          <div className="flex h-44 w-44 shrink-0 items-center justify-center self-center rounded-xl ring-1 ring-[#b7dbc4] sm:self-start">
-            {qr ? (
-              <img src={qr.pngDataUrl} alt="QR code for this business" className="h-full w-full rounded-xl" />
-            ) : qrError ? (
-              <p className="p-3 text-center text-xs text-red-700">{qrError}</p>
-            ) : (
-              <Loader2 className="animate-spin text-[#91b49e]" />
-            )}
-          </div>
-          <div className="min-w-0 flex-1 space-y-3 text-sm text-[#43745b]">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-[#91b49e]">Encodes</p>
-              <p className="mt-0.5 break-all font-semibold text-[#284737]">{url}</p>
-            </div>
-            <p>
-              The QR contains only this public address, so it keeps working when links change. Error correction level H
-              {qr ? (qr.logoIncluded ? ", with the business logo in the center." : ", without a center logo.") : "."}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <button disabled={!qr} onClick={() => qr && downloadPng(qr.pngDataUrl, `${biz.slug}-qr.png`)} className={secondaryBtn}>
-                <Download size={16} /> Download PNG
-              </button>
-              <button onClick={copyUrl} className={secondaryBtn}><Copy size={16} /> Copy link</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <ConfirmDialog
-        open={action !== null}
-        busy={busy}
-        danger={action === "delete" || biz.isActive}
-        title={action === "delete" ? "Delete this business?" : biz.isActive ? "Deactivate this business?" : "Activate this business?"}
+        open={Boolean(action)}
+        title={action === "delete" ? "Delete Business?" : biz.isActive ? "Deactivate Business?" : "Activate Business?"}
         message={
-          action === "delete" ? (
-            <>{biz.businessName}, its links, logo and analytics will be permanently deleted, and its QR code will stop working. This cannot be undone.</>
-          ) : biz.isActive ? (
-            <>The public page will show "page not available" and scans of the QR code will stop working until it is activated again.</>
-          ) : (
-            <>The public page will go live again.</>
-          )
+          action === "delete"
+            ? `Permanently destroy ${biz.businessName}? All its dynamic links and QR destinations will become inactive immediately.`
+            : biz.isActive
+            ? `Deactivating ${biz.businessName} will immediately prevent scanning customers from viewing their links.`
+            : `Reactivate ${biz.businessName}?`
         }
-        confirmLabel={action === "delete" ? "Delete business" : biz.isActive ? "Deactivate" : "Activate"}
+        confirmLabel={action === "delete" ? "Delete" : biz.isActive ? "Deactivate" : "Activate"}
+        danger={action === "delete" || biz.isActive}
+        busy={busy}
         onConfirm={run}
         onCancel={() => setAction(null)}
       />
-      <p className="text-xs text-[#91b49e]">Created {formatDate(biz.createdAt)}</p>
     </div>
   );
 }

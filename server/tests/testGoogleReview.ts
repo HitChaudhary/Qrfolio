@@ -130,6 +130,27 @@ for (const cat of expectedCategories) {
 }
 console.log("✓ Passed for all 12 categories");
 
+// 8b. Test Custom Mention & Local SEO keywords integration
+console.log("\nTest 8b: Test custom highlight and SEO keywords integration");
+const seoDraft = generateReviewDraft({
+  businessName: "Bean & Brew Café",
+  category: "Restaurant / Café",
+  selectedAttributes: ["Food quality"],
+  customHighlight: "cold brew & blueberry cheesecake",
+});
+assert.ok(seoDraft.draft.includes("Bean & Brew Café"), "Must include business name");
+assert.ok(seoDraft.draft.toLowerCase().includes("food quality"), "Must include attribute");
+assert.ok(seoDraft.draft.includes("cold brew & blueberry cheesecake"), "Must include custom highlight");
+assert.ok(
+  seoDraft.draft.includes("cafes & restaurants") ||
+    seoDraft.draft.includes("cafe & restaurant") ||
+    seoDraft.draft.includes("cafes and dining spots in the area") ||
+    seoDraft.draft.includes("cafes in town"),
+  "Must include category SEO search keywords"
+);
+console.log("Sample SEO draft with custom highlight:\n" + seoDraft.draft);
+console.log("✓ Passed");
+
 // 9. Test readLink validation logic (mimicking business controller readLink)
 console.log("\nTest 9: Test readLink validation logic");
 function mockReadLink(body: any, existing?: any) {
