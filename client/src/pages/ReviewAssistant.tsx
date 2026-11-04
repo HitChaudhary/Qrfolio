@@ -2,7 +2,6 @@ import axios from "axios";
 import {
   ArrowLeft,
   Check,
-  Copy,
   ExternalLink,
   Info,
   QrCode,
@@ -195,49 +194,84 @@ function AssistantView({
     updateDraft(selectedAttrs, customHighlight, prevTemplateIndex);
   }
 
-  async function handleCopy() {
-    if (!draft.trim()) return;
-
-    let successful = false;
-    if (navigator.clipboard && window.isSecureContext) {
-      try {
-        await navigator.clipboard.writeText(draft);
-        successful = true;
-      } catch {
-        successful = false;
-      }
-    }
-
-    if (!successful) {
-      try {
-        const textarea = document.createElement("textarea");
-        textarea.value = draft;
-        textarea.style.position = "fixed";
-        textarea.style.left = "-9999px";
-        document.body.appendChild(textarea);
-        textarea.focus();
-        textarea.select();
-        successful = document.execCommand("copy");
-        document.body.removeChild(textarea);
-      } catch {
-        successful = false;
-      }
-    }
-
-    if (successful) {
-      setCopied(true);
-      setCopyFeedback("Review copied to clipboard!");
-      setTimeout(() => {
-        setCopied(false);
-        setCopyFeedback("");
-      }, 3000);
-    } else {
-      setCopyFeedback("Please select and copy the text manually.");
-      setTimeout(() => setCopyFeedback(""), 4000);
+  function copyFallback(text: string): boolean {
+    try {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      textarea.style.top = "-9999px";
+      textarea.setAttribute("readonly", "");
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      const successful = document.execCommand("copy");
+      document.body.removeChild(textarea);
+      return successful;
+    } catch {
+      return false;
     }
   }
 
-  function handleContinueToGoogle() {
+  function handleWriteReview() {
+    // 1. Generate / ensure review draft using existing generator & keywords
+    let textToCopy = draft.trim();
+    if (!textToCopy) {
+      const { draft: newDraft, templateIndex } = generateReviewDraft({
+        businessName,
+        category,
+        selectedAttributes: selectedAttrs,
+        customHighlight,
+        previousIndex: prevTemplateIndex,
+      });
+      textToCopy = newDraft;
+      setDraft(newDraft);
+      setPrevTemplateIndex(templateIndex);
+    }
+
+    // 2. Perform clipboard copy directly within the click gesture
+    let copiedOk = false;
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard
+        .writeText(textToCopy)
+        .then(() => {
+          setCopied(true);
+          setCopyFeedback("Review copied! Paste it on Google.");
+        })
+        .catch(() => {
+          const fallbackOk = copyFallback(textToCopy);
+          if (fallbackOk) {
+            setCopied(true);
+            setCopyFeedback("Review copied! Paste it on Google.");
+          } else {
+            setCopied(false);
+            setCopyFeedback("Could not copy automatically. Please copy the review text below manually.");
+            const textareaEl = document.querySelector<HTMLTextAreaElement>("textarea");
+            if (textareaEl) {
+              textareaEl.focus();
+              textareaEl.select();
+            }
+          }
+        });
+      copiedOk = true;
+    } else {
+      copiedOk = copyFallback(textToCopy);
+    }
+
+    if (copiedOk) {
+      setCopied(true);
+      setCopyFeedback("Review copied! Paste it on Google.");
+    } else {
+      setCopied(false);
+      setCopyFeedback("Could not copy automatically. Please copy the review text below manually.");
+      const textareaEl = document.querySelector<HTMLTextAreaElement>("textarea");
+      if (textareaEl) {
+        textareaEl.focus();
+        textareaEl.select();
+      }
+    }
+
+    // 3. Automatically open business's Google Review link in a new tab
     setShowRedirectNotice(true);
     const targetUrl = `${API_BASE}/go/${data.profileId}/${link.id}`;
     window.open(targetUrl, "_blank", "noopener,noreferrer");
@@ -395,10 +429,37 @@ function AssistantView({
           />
         </div>
 
+        {/* Suggestion Action Row */}
+        <div className="flex items-center justify-between pt-1">
+          <button
+            type="button"
+            onClick={handleGenerateAnother}
+            className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 hover:text-slate-950 transition-colors cursor-pointer"
+          >
+            <RotateCw size={13} className="text-slate-500" /> New Suggestion
+          </button>
+          <span className="text-[11px] text-slate-400 font-medium">
+            Personalized for {businessName}
+          </span>
+        </div>
+      </div>
+
+      {/* Primary Action: Combined ⭐ Write a Google Review */}
+      <div className="rounded-3xl border-2 border-slate-900 bg-white p-5 shadow-sm space-y-3.5">
+        <button
+          type="button"
+          onClick={handleWriteReview}
+          className="w-full inline-flex items-center justify-center gap-2.5 rounded-full bg-slate-950 px-6 py-4 text-sm sm:text-base font-black text-white shadow-lg hover:bg-slate-900 active:scale-95 transition-all cursor-pointer group"
+        >
+          <Star size={18} className="fill-[#b8de20] text-[#b8de20] group-hover:scale-110 transition-transform shrink-0" aria-hidden="true" />
+          <span>Write a Google Review</span>
+          <ExternalLink size={16} className="text-slate-400 group-hover:text-white transition-colors" />
+        </button>
+
         {copyFeedback && (
           <p
             role="alert"
-            className={`text-xs font-bold rounded-xl p-2.5 text-center transition-all ${
+            className={`text-xs font-bold rounded-xl p-3 text-center transition-all animate-fade-in ${
               copied
                 ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
                 : "bg-amber-50 text-amber-800 border border-amber-200"
@@ -408,64 +469,21 @@ function AssistantView({
           </p>
         )}
 
-        {/* Suggestion Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-2 pt-1">
-          <button
-            type="button"
-            onClick={handleGenerateAnother}
-            className="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs font-bold text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
-          >
-            <RotateCw size={14} className="text-slate-500" /> New Suggestion
-          </button>
-          <button
-            type="button"
-            onClick={handleCopy}
-            className={`flex-1 inline-flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-xs ${
-              copied
-                ? "bg-slate-950 text-[#d4f04d]"
-                : "bg-[#d4f04d] text-slate-950 hover:bg-[#c4e436]"
-            }`}
-          >
-            {copied ? (
-              <>
-                <Check size={14} className="text-[#d4f04d]" /> Copied!
-              </>
-            ) : (
-              <>
-                <Copy size={14} /> Copy Review
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-
-      {/* Primary Action: Continue to Google Reviews */}
-      <div className="rounded-3xl border border-slate-200/90 bg-white p-5 shadow-xs space-y-3">
-        <button
-          type="button"
-          onClick={handleContinueToGoogle}
-          className="w-full inline-flex items-center justify-center gap-2.5 rounded-full bg-slate-950 px-5 py-3.5 text-xs sm:text-sm font-black text-white shadow-lg hover:bg-slate-900 active:scale-95 transition-all cursor-pointer"
-        >
-          <Star size={16} className="fill-[#d4f04d] text-[#d4f04d]" />
-          <span>Continue to Google Reviews ↗</span>
-          <ExternalLink size={15} />
-        </button>
-
         <div className="rounded-2xl bg-slate-50 p-3.5 border border-slate-200 text-xs text-slate-600 space-y-1.5">
           <div className="flex items-center gap-1.5 font-bold text-slate-950">
             <Info size={14} className="text-slate-500 shrink-0" />
             <span>How it works:</span>
           </div>
           <ol className="list-decimal list-inside space-y-1 text-slate-600 pl-1 leading-relaxed text-[11px]">
-            <li>Tap <strong>Copy Review</strong> above.</li>
-            <li>Tap <strong>Continue to Google Reviews</strong> to open Google Maps modal.</li>
-            <li>Select 5 stars and paste your text!</li>
+            <li>Tap <strong>Write a Google Review</strong>.</li>
+            <li>Your review is copied automatically & Google opens in a new tab.</li>
+            <li>Select 5 stars and paste your review!</li>
           </ol>
         </div>
 
         {showRedirectNotice && (
-          <div className="p-3 text-center text-xs text-slate-500 border border-dashed border-slate-200 rounded-2xl">
-            Redirecting to Google Maps... Paste your copied draft and select 5 stars.
+          <div className="p-3 text-center text-xs text-slate-500 border border-dashed border-slate-200 rounded-2xl animate-fade-in">
+            Google Reviews opened in a new tab. Paste your copied review and select 5 stars!
           </div>
         )}
       </div>
