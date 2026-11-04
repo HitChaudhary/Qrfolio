@@ -1,6 +1,6 @@
 import QRCode from "qrcode";
 
-const DARK = "#0f172a";
+const DARK = "#0e1424";
 const LIGHT = "#ffffff";
 const QUIET = 4; // quiet zone, in modules (QR spec minimum)
 const TARGET = 1024; // approximate output size in px

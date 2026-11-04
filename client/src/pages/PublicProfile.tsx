@@ -77,16 +77,16 @@ export default function PublicProfile() {
         {state.status === "ok" && <Profile data={state.data} slug={slug ?? ""} />}
       </div>
 
-      {/* Powered by QrFolio footer badge */}
+      {/* Powered by qrfolio footer badge */}
       <footer className="mt-12 text-center">
         <Link
           to="/"
-          className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-xs font-bold text-slate-700 border border-slate-200/90 shadow-2xs hover:bg-slate-950 hover:text-white transition-all duration-200"
+          className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-xs font-bold text-slate-700 border border-slate-200/90 shadow-2xs hover:bg-[#0e1424] hover:text-white transition-all duration-200 group"
         >
-          <div className="flex h-4 w-4 items-center justify-center rounded-sm bg-slate-950 text-[#d4f04d]">
-            <QrfolioIconMark size={10} mode="dark" />
+          <div className="flex h-4 w-4 items-center justify-center rounded-sm group-hover:scale-105 transition-transform">
+            <QrfolioIconMark size={14} mode="squircle" />
           </div>
-          <span>Create your counter stand with <strong>QrFolio</strong></span>
+          <span>Create your counter stand with <strong className="font-extrabold tracking-tight">qrfolio</strong></span>
         </Link>
       </footer>
     </main>

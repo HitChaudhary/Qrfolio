@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 52" fill="none">
+  <!-- Unified Qrfolio Brand Logo (Dark / Slate Surface) -->
+  <g transform="translate(6, 6) scale(0.05)">
+    <path d="M 755 474 V 210 A 165 165 0 0 0 590 45 H 210 A 165 165 0 0 0 45 210 V 590 A 165 165 0 0 0 210 755 H 474" 
+          stroke="#f7f5f0" stroke-width="70" stroke-linecap="round" stroke-linejoin="round" />
+    <polygon points="510,510 690,510 510,690" fill="#b8de20" />
+    <rect x="308" y="308" width="184" height="184" rx="28" fill="#f7f5f0" />
+  </g>
+
+  <!-- Typography Wordmark with signature lime dot on i -->
+  <text x="56" y="35" font-family="'Outfit', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" font-size="29" font-weight="800" fill="#f7f5f0" letter-spacing="-0.035em">qrfol<tspan fill="#f7f5f0">ı</tspan>o</text>
+  <rect x="187.5" y="16.5" width="5.5" height="5.5" rx="1.2" fill="#b8de20" />
+</svg>
+

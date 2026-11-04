@@ -201,11 +201,11 @@ export default function LandingLayout() {
             <div className="md:col-span-2 space-y-4">
               <Brand size="lg" showBadge mode="light" />
               <p className="text-sm text-slate-600 max-w-sm leading-relaxed">
-                QrFolio empowers modern businesses and creators to build branded dynamic QR codes with Level-H error correction and lightning-fast mobile bio hubs.
+                qrfolio empowers modern businesses, shops, and restaurants to build branded dynamic QR codes with Level-H error correction and lightning-fast mobile hubs.
               </p>
 
               <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
-                <span className="h-2 w-2 rounded-full bg-[#d4f04d] ring-2 ring-lime-400 animate-pulse" />
+                <span className="h-2 w-2 rounded-full bg-[#b8de20] ring-2 ring-lime-400 animate-pulse" />
                 <span>All Systems Operational • 99.99% Routing Uptime</span>
               </div>
             </div>
@@ -301,7 +301,7 @@ export default function LandingLayout() {
           </div>
 
           <div className="mt-12 flex flex-col sm:flex-row items-center justify-between border-t border-slate-200/80 pt-6 text-xs text-slate-500 gap-4">
-            <p>© {new Date().getFullYear()} QrFolio Technologies Inc. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} qrfolio Technologies Inc. All rights reserved.</p>
             <div className="flex items-center gap-6">
               <Link to="/faq" className="hover:text-slate-900 transition-colors">
                 Support

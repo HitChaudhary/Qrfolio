@@ -33,12 +33,13 @@ import {
   Wifi,
   MapPin,
   Calendar,
+  Download,
   Instagram,
   Phone,
   Mail,
   Share2,
 } from "lucide-react";
-import { QrfolioIconMark } from "../components/QrfolioLogo";
+import QrfolioLogo, { QrfolioIconMark } from "../components/QrfolioLogo";
 import PartnerLogoLoop from "../components/landing/PartnerLogoLoop";
 import {
   GoogleLogo,
@@ -376,7 +377,7 @@ function SampleQr({
   url?: string;
   size?: "sm" | "md";
 }) {
-  const { qr, error } = useQr(url, "");
+  const { qr, error } = useQr(url, "/logo-mark.png");
   const dim = size === "sm" ? "h-40 w-40 sm:h-44 sm:w-44" : "h-56 w-56 sm:h-64 sm:w-64";
 
   return (
@@ -414,6 +415,7 @@ export default function Home() {
   const [simulatedLinkTapped, setSimulatedLinkTapped] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [copiedLink, setCopiedLink] = useState(false);
+  const [standView, setStandView] = useState<"live" | "artwork">("live");
 
   const currentDemo = PRESET_DEMOS[activeDemo];
 
@@ -1091,51 +1093,87 @@ export default function Home() {
           <div className="mt-12 sm:mt-16 grid gap-10 lg:gap-14 lg:grid-cols-12 items-center justify-center max-w-5xl mx-auto w-full">
             {/* LEFT (5 COLS): ACRYLIC COUNTER STAND MOCKUP */}
             <div className="lg:col-span-5 flex flex-col items-center">
-              <div className="w-full max-w-[340px] sm:max-w-[360px] rounded-[2rem] bg-white p-6 sm:p-7 text-slate-900 shadow-[0_25px_60px_rgba(0,0,0,0.35)] ring-4 ring-white/30 backdrop-blur-xl flex flex-col items-center text-center">
-                {/* Stand Top Bar */}
-                <div className="flex items-center justify-between w-full mb-4">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-bold text-emerald-700 border border-emerald-200">
-                    <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                    Level-H Scannable
-                  </span>
-                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                    Counter Display
-                  </span>
-                </div>
+              {/* Stand Mode Toggle Tabs */}
+              <div className="mb-4 inline-flex items-center rounded-full bg-white/20 p-1 backdrop-blur-md border border-white/30 text-xs font-bold text-white shadow-sm">
+                <button
+                  type="button"
+                  onClick={() => setStandView("live")}
+                  className={`rounded-full px-3.5 py-1.5 transition-all cursor-pointer ${
+                    standView === "live"
+                      ? "bg-[#0e1424] text-white shadow-md"
+                      : "text-white/80 hover:text-white"
+                  }`}
+                >
+                  ⚡ Live Interactive Stand
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStandView("artwork")}
+                  className={`rounded-full px-3.5 py-1.5 transition-all cursor-pointer ${
+                    standView === "artwork"
+                      ? "bg-[#0e1424] text-white shadow-md"
+                      : "text-white/80 hover:text-white"
+                  }`}
+                >
+                  ✨ Official Stand Artwork
+                </button>
+              </div>
 
-                {/* Optical Viewfinder Frame around Scannable QR */}
-                <div className="relative p-2.5 rounded-2xl bg-slate-50 border border-slate-200/90 group">
-                  {/* Corner Target Brackets */}
-                  <div className="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-sky-500 rounded-tl-sm pointer-events-none" />
-                  <div className="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 border-sky-500 rounded-tr-sm pointer-events-none" />
-                  <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 border-sky-500 rounded-bl-sm pointer-events-none" />
-                  <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-sky-500 rounded-br-sm pointer-events-none" />
+              {standView === "live" ? (
+                /* Authentic Obsidian Brand Stand matching Standee */
+                <div className="w-full max-w-[340px] sm:max-w-[360px] rounded-[2.2rem] bg-[#0e1424] p-6 sm:p-7 text-white shadow-[0_25px_60px_rgba(0,0,0,0.45)] ring-4 ring-white/20 backdrop-blur-xl flex flex-col items-center text-center">
+                  {/* Stand Top Bar */}
+                  <div className="flex items-center justify-between w-full mb-3">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold text-[#b8de20] border border-white/15">
+                      <span className="h-2 w-2 rounded-full bg-[#b8de20] animate-pulse" />
+                      Level-H Scannable
+                    </span>
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                      Counter Display
+                    </span>
+                  </div>
 
-                  {/* Scannable Level-H QR */}
-                  <SampleQr url={`https://qrfolio.io/p/${currentDemo.id}`} size="md" />
-                </div>
+                  {/* Top Wordmark */}
+                  <div className="mb-4 flex items-center justify-center">
+                    <QrfolioLogo size="sm" mode="dark" variant="wordmark" />
+                  </div>
 
-                <div className="mt-4 w-full">
-                  <span className="text-sm font-black text-slate-950 block">
-                    Point Phone Camera Here to Test
-                  </span>
-                  <p className="text-xs text-slate-500 mt-1 leading-snug">
-                    iPhone Camera, Android Camera & Google Lens • Zero app download
-                  </p>
+                  {/* Optical Viewfinder Frame around Scannable QR on cream card */}
+                  <div className="relative p-2.5 rounded-2xl bg-[#f7f5f0] border border-white/40 shadow-inner group">
+                    {/* Corner Target Brackets */}
+                    <div className="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-[#b8de20] rounded-tl-sm pointer-events-none" />
+                    <div className="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 border-[#b8de20] rounded-tr-sm pointer-events-none" />
+                    <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 border-[#b8de20] rounded-bl-sm pointer-events-none" />
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-[#b8de20] rounded-br-sm pointer-events-none" />
+
+                    {/* Scannable Level-H QR */}
+                    <SampleQr url={`https://qrfolio.io/p/${currentDemo.id}`} size="md" />
+                  </div>
+
+                  {/* Standee Taglines matching authentic brand print */}
+                  <div className="mt-4 w-full space-y-1">
+                    <span className="font-display text-base font-black text-white tracking-tight block">
+                      Scan to see everything
+                    </span>
+                    <p className="text-[11px] font-medium text-slate-300 tracking-wide">
+                      Reviews · Instagram · WhatsApp · Maps
+                    </p>
+                    <div className="w-9 h-1 rounded-full bg-[#b8de20] mx-auto mt-2 shadow-[0_0_10px_rgba(184,222,32,0.8)]" />
+                  </div>
 
                   {/* Clean URL bar with copy & open */}
-                  <div className="mt-4 flex items-center justify-between rounded-xl bg-slate-50 border border-slate-200 p-2 text-xs font-mono">
-                    <span className="truncate text-slate-700 font-semibold px-2">
+                  <div className="mt-4 w-full flex items-center justify-between rounded-xl bg-white/10 border border-white/15 p-2 text-xs font-mono">
+                    <span className="truncate text-white/90 font-semibold px-2">
                       qrfolio.io/p/{currentDemo.id}
                     </span>
                     <div className="flex items-center gap-1.5 shrink-0">
                       <button
                         onClick={handleCopyLink}
-                        className="p-1.5 rounded-md hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
+                        className="p-1.5 rounded-md hover:bg-white/20 text-white transition-colors cursor-pointer"
                         title="Copy Link"
                       >
                         {copiedLink ? (
-                          <Check size={14} className="text-emerald-600" />
+                          <Check size={14} className="text-[#b8de20]" />
                         ) : (
                           <Copy size={14} />
                         )}
@@ -1144,37 +1182,58 @@ export default function Home() {
                         href={`https://qrfolio.io/p/${currentDemo.id}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-1.5 rounded-md bg-slate-950 text-white hover:bg-slate-800 transition-colors"
+                        className="p-1.5 rounded-md bg-[#b8de20] text-[#0e1424] hover:bg-[#a6cc18] transition-colors font-bold"
                         title="Open live link in new tab"
                       >
                         <ExternalLink size={14} />
                       </a>
                     </div>
                   </div>
-                </div>
 
-                {/* 3 Step Instruction Row */}
-                <div className="mt-5 pt-4 border-t border-slate-100 w-full grid grid-cols-3 gap-2 text-center">
-                  <div className="rounded-lg bg-slate-50 p-2">
-                    <span className="text-[10px] font-bold text-slate-400 block uppercase">Step 1</span>
-                    <span className="text-[11px] font-bold text-slate-800 leading-tight block mt-0.5">
-                      Open Camera
-                    </span>
-                  </div>
-                  <div className="rounded-lg bg-slate-50 p-2">
-                    <span className="text-[10px] font-bold text-slate-400 block uppercase">Step 2</span>
-                    <span className="text-[11px] font-bold text-slate-800 leading-tight block mt-0.5">
-                      Aim at Stand
-                    </span>
-                  </div>
-                  <div className="rounded-lg bg-emerald-50 p-2 border border-emerald-100">
-                    <span className="text-[10px] font-bold text-emerald-600 block uppercase">Step 3</span>
-                    <span className="text-[11px] font-bold text-emerald-900 leading-tight block mt-0.5">
-                      Opens in 240ms
-                    </span>
+                  {/* 3 Step Instruction Row */}
+                  <div className="mt-4 pt-3 border-t border-white/10 w-full grid grid-cols-3 gap-2 text-center">
+                    <div className="rounded-lg bg-white/5 p-2 border border-white/10">
+                      <span className="text-[10px] font-bold text-slate-400 block uppercase">Step 1</span>
+                      <span className="text-[11px] font-bold text-white leading-tight block mt-0.5">
+                        Open Camera
+                      </span>
+                    </div>
+                    <div className="rounded-lg bg-white/5 p-2 border border-white/10">
+                      <span className="text-[10px] font-bold text-slate-400 block uppercase">Step 2</span>
+                      <span className="text-[11px] font-bold text-white leading-tight block mt-0.5">
+                        Aim at Stand
+                      </span>
+                    </div>
+                    <div className="rounded-lg bg-[#b8de20]/15 p-2 border border-[#b8de20]/30">
+                      <span className="text-[10px] font-bold text-[#b8de20] block uppercase">Step 3</span>
+                      <span className="text-[11px] font-bold text-white leading-tight block mt-0.5">
+                        Opens in 240ms
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                /* Official Standee Image Card */
+                <div className="w-full max-w-[340px] sm:max-w-[360px] rounded-[2.2rem] overflow-hidden bg-[#0e1424] p-4 text-white shadow-[0_25px_60px_rgba(0,0,0,0.45)] ring-4 ring-white/20 backdrop-blur-xl flex flex-col items-center text-center">
+                  <div className="relative rounded-2xl overflow-hidden border border-white/15 bg-black/40">
+                    <img
+                      src="/qr-standee.jpg"
+                      alt="Official Qrfolio Acrylic Standee Artwork"
+                      className="w-full h-auto object-cover rounded-xl"
+                    />
+                  </div>
+                  <div className="mt-4 p-2 w-full flex items-center justify-between border-t border-white/10">
+                    <span className="text-xs font-bold text-slate-300">Official Print Artwork</span>
+                    <a
+                      href="/qr-standee.jpg"
+                      download="qrfolio-acrylic-standee.jpg"
+                      className="inline-flex items-center gap-1.5 rounded-full bg-[#b8de20] px-3.5 py-1 text-xs font-black text-[#0e1424] hover:bg-[#a6cc18] transition-colors"
+                    >
+                      <Download size={13} /> Download JPG
+                    </a>
+                  </div>
+                </div>
+              )}
 
               {/* Counter Table Stand Base Effect */}
               <div className="w-48 sm:w-56 h-3 bg-gradient-to-r from-white/20 via-white/70 to-white/20 rounded-full mx-auto -mt-1.5 shadow-md blur-[0.5px] border-t border-white/40" />

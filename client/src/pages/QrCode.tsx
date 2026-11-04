@@ -25,7 +25,7 @@ export default function QrCode() {
   const { business, loading, error, reload } = useBusiness();
   const toast = useToast();
   const url = business ? publicUrl(business.slug) : "";
-  const { qr, error: genError } = useQr(url, business?.logoUrl ?? "");
+  const { qr, error: genError } = useQr(url, business?.logoUrl || "/logo-mark.png");
 
   if (loading) return <PageLoading />;
   if (error) return <PageError message={error} onRetry={reload} />;
@@ -165,7 +165,7 @@ export default function QrCode() {
                 className="w-full flex items-center justify-between gap-3.5 rounded-2xl border border-slate-200 bg-slate-50/80 p-4 text-left transition-all hover:border-slate-950 hover:bg-white hover:shadow-md cursor-pointer group"
               >
                 <div className="flex items-center gap-3.5">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#d4f04d] text-slate-950 group-hover:scale-105 transition-transform">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#b8de20] text-[#0e1424] group-hover:scale-105 transition-transform">
                     <Printer size={22} />
                   </div>
                   <div>
@@ -175,6 +175,24 @@ export default function QrCode() {
                 </div>
                 <ExternalLink size={18} className="text-slate-400 group-hover:text-slate-950" />
               </button>
+
+              {/* Standee Template Download */}
+              <a
+                href="/qr-standee.jpg"
+                download={`${business.slug}-acrylic-standee.jpg`}
+                className="w-full flex items-center justify-between gap-3.5 rounded-2xl border border-slate-200 bg-slate-50/80 p-4 text-left transition-all hover:border-slate-950 hover:bg-white hover:shadow-md cursor-pointer group"
+              >
+                <div className="flex items-center gap-3.5">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#0e1424] text-[#b8de20] group-hover:scale-105 transition-transform">
+                    <Sparkles size={22} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-slate-950">Official Acrylic Counter Standee</p>
+                    <p className="text-xs text-slate-500">Full 300 DPI "Scan to see everything" acrylic stand template</p>
+                  </div>
+                </div>
+                <Download size={18} className="text-slate-400 group-hover:text-slate-950" />
+              </a>
             </div>
           </div>
 

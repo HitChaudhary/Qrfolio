@@ -1,28 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
-  <!-- Container Squircle in Obsidian Slate with Precision Rim -->
-  <rect x="3" y="3" width="42" height="42" rx="12" fill="#090d16" stroke="#1e293b" stroke-width="1.5" />
-
-  <!-- Top Glass Highlight -->
-  <path d="M3 15C3 8.37258 8.37258 3 15 3H33C39.6274 3 45 8.37258 45 15V22H3V15Z" fill="white" fill-opacity="0.08" />
-
-  <!-- 1. Top-Left Primary QR Finder Pattern -->
-  <rect x="9.5" y="9.5" width="13" height="13" rx="3.5" fill="#ffffff" />
-  <rect x="11.5" y="11.5" width="9" height="9" rx="2" fill="#090d16" />
-  <rect x="14" y="14" width="4" height="4" rx="1" fill="#38bdf8" />
-
-  <!-- 2. Top-Right Secondary Finder Pattern -->
-  <rect x="25.5" y="9.5" width="13" height="13" rx="3.5" fill="#ffffff" />
-  <rect x="27.5" y="11.5" width="9" height="9" rx="2" fill="#090d16" />
-  <circle cx="32" cy="16" r="2" fill="#d4f04d" />
-
-  <!-- 3. Bottom-Left Third Finder Pattern -->
-  <rect x="9.5" y="25.5" width="13" height="13" rx="3.5" fill="#ffffff" />
-  <rect x="11.5" y="27.5" width="9" height="9" rx="2" fill="#090d16" />
-  <rect x="14" y="30" width="4" height="4" rx="1" fill="#ffffff" />
-
-  <!-- 4. Bottom-Right Dynamic Folio Node -->
-  <rect x="25.5" y="25.5" width="5.5" height="5.5" rx="1.5" fill="#ffffff" />
-  <rect x="33" y="25.5" width="5.5" height="5.5" rx="1.5" fill="#38bdf8" />
-  <circle cx="29" cy="35" r="3.5" fill="#d4f04d" />
-  <path d="M34 32.5L37.5 36" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <!-- Obsidian Squircle Container matching authentic brand mark -->
+  <rect width="512" height="512" rx="118" fill="#0e1424" />
+  
+  <!-- Centered Qrfolio Folded-Q Icon Mark -->
+  <g transform="translate(128, 128) scale(0.32)">
+    <path d="M 755 474 V 210 A 165 165 0 0 0 590 45 H 210 A 165 165 0 0 0 45 210 V 590 A 165 165 0 0 0 210 755 H 474" 
+          stroke="#f7f5f0" stroke-width="70" stroke-linecap="round" stroke-linejoin="round" />
+    <polygon points="510,510 690,510 510,690" fill="#b8de20" />
+    <rect x="308" y="308" width="184" height="184" rx="28" fill="#f7f5f0" />
+  </g>
 </svg>

@@ -39,7 +39,7 @@ export default function Dashboard() {
   const [copied, setCopied] = useState(false);
 
   const url = business ? publicUrl(business.slug) : "";
-  const { qr } = useQr(url, business?.logoUrl ?? "");
+  const { qr } = useQr(url, business?.logoUrl || "/logo-mark.png");
   const { data: stats } = useAnalytics(business?.id);
 
   if (loading) return <PageLoading />;

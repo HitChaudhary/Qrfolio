@@ -17,7 +17,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { QrfolioIconMark } from "./QrfolioLogo";
+import QrfolioLogo, { QrfolioIconMark } from "./QrfolioLogo";
 
 const ITEMS = [
   { to: "/admin", label: "Platform Cockpit", Icon: LayoutDashboard, end: true },
@@ -29,19 +29,11 @@ const ITEMS = [
 
 function AdminBrand() {
   return (
-    <div className="flex items-center gap-3">
-      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 border border-white/20 p-1 shadow-inner">
-        <QrfolioIconMark size={24} mode="dark" />
-      </div>
-      <div className="leading-tight">
-        <div className="flex items-center gap-1.5">
-          <span className="font-display text-base font-black tracking-tight text-white">QrFolio</span>
-          <span className="rounded-full bg-[#d4f04d] px-1.5 py-0.2 text-[9px] font-black uppercase text-slate-950">
-            Admin
-          </span>
-        </div>
-        <p className="text-[10px] font-mono uppercase tracking-wider text-slate-400">Platform Cockpit</p>
-      </div>
+    <div className="flex items-center gap-2.5">
+      <QrfolioLogo size="sm" mode="dark" variant="full" />
+      <span className="rounded-full bg-[#b8de20] px-1.5 py-0.5 text-[9px] font-black uppercase text-[#0e1424]">
+        Admin
+      </span>
     </div>
   );
 }
