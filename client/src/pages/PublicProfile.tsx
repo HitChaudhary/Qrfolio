@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Check, ChevronRight, QrCode, Share2, Sparkles } from "lucide-react";
+import { Check, ChevronRight, MapPin, Phone, QrCode, Share2, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { API_BASE, api } from "../lib/api";
@@ -96,6 +96,14 @@ export default function PublicProfile() {
 function Profile({ data, slug }: { data: PublicProfileData; slug: string }) {
   const [copied, setCopied] = useState(false);
   const links = data.links.filter((l) => isSafeHref(l.url));
+  const hasPhone = Boolean(data.phone && data.phone.trim());
+  const hasLocation = Boolean(data.location && data.location.trim());
+  const phoneHref = hasPhone ? data.phone!.trim().replace(/[\s-()]/g, "") : "";
+  const mapsHref = hasLocation
+    ? /^https?:\/\//i.test(data.location!.trim())
+      ? data.location!.trim()
+      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.location!.trim())}`
+    : "";
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -173,13 +181,48 @@ function Profile({ data, slug }: { data: PublicProfileData; slug: string }) {
         </p>
       )}
 
-      {/* Action Links */}
-      {links.length === 0 ? (
-        <div className="mt-8 w-full rounded-3xl bg-white p-7 text-center text-xs sm:text-sm text-slate-500 border border-slate-200 shadow-2xs">
-          No active links currently published.
+      {/* Quick Actions: Call & Directions (Independent of optional links) */}
+      {(hasPhone || hasLocation) && (
+        <div className={`mt-5 w-full grid gap-2.5 ${hasPhone && hasLocation ? "grid-cols-2" : "grid-cols-1"}`}>
+          {hasPhone && (
+            <a
+              href={`tel:${phoneHref}`}
+              className="group flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-3.5 py-3 text-white shadow-xs transition-all duration-200 hover:bg-slate-800 hover:-translate-y-0.5 active:translate-y-0"
+              title={`Call ${data.phone}`}
+            >
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-white/10 text-[#d4f04d] group-hover:scale-105 transition-transform">
+                <Phone size={15} />
+              </div>
+              <div className="min-w-0 text-left">
+                <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Call</span>
+                <span className="block truncate text-xs font-bold text-white sm:text-sm">{data.phone}</span>
+              </div>
+            </a>
+          )}
+
+          {hasLocation && (
+            <a
+              href={mapsHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center justify-center gap-2 rounded-2xl bg-white px-3.5 py-3 text-slate-950 shadow-xs border border-slate-200/90 transition-all duration-200 hover:border-slate-400 hover:bg-slate-50 hover:-translate-y-0.5 active:translate-y-0"
+              title={`Directions to ${data.location}`}
+            >
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-900 group-hover:scale-105 transition-transform">
+                <MapPin size={15} />
+              </div>
+              <div className="min-w-0 text-left">
+                <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">Directions</span>
+                <span className="block truncate text-xs font-bold text-slate-900 sm:text-sm">{data.location}</span>
+              </div>
+            </a>
+          )}
         </div>
-      ) : (
-        <ul className="mt-6 w-full space-y-3">
+      )}
+
+      {/* Action Links */}
+      {links.length > 0 ? (
+        <ul className="mt-5 w-full space-y-3">
           {links.map((link) => {
             const external = /^https?:/i.test(link.url);
             const isReviewAssistant = link.icon === "google-reviews" && link.enableReviewAssistant;
@@ -225,6 +268,12 @@ function Profile({ data, slug }: { data: PublicProfileData; slug: string }) {
             );
           })}
         </ul>
+      ) : (
+        !hasPhone && !hasLocation && (
+          <div className="mt-8 w-full rounded-3xl bg-white p-7 text-center text-xs sm:text-sm text-slate-500 border border-slate-200 shadow-2xs">
+            No active links currently published.
+          </div>
+        )
       )}
     </div>
   );

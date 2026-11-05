@@ -1,6 +1,6 @@
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
-import { changePassword, login, me, register } from "../controllers/auth";
+import { changePassword, login, me, register, updateProfile } from "../controllers/auth";
 import { requireAuth } from "../middleware/auth";
 import { requireDb, requireJwtConfig } from "../middleware/guards";
 import { asyncHandler } from "../utils/asyncHandler";
@@ -19,6 +19,7 @@ router.use(requireDb, requireJwtConfig);
 router.post("/register", authLimiter, asyncHandler(register));
 router.post("/login", authLimiter, asyncHandler(login));
 router.get("/me", requireAuth, asyncHandler(me));
+router.put("/profile", requireAuth, asyncHandler(updateProfile));
 router.put("/password", authLimiter, requireAuth, asyncHandler(changePassword));
 
 export default router;

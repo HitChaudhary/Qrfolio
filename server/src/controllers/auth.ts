@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import { AuthRequest } from "../middleware/auth";
+import { BusinessProfile } from "../models/BusinessProfile";
 import { IUser, User } from "../models/User";
 import { signToken } from "../utils/token";
 
@@ -10,6 +11,8 @@ const publicUser = (u: IUser) => ({
   id: u.id as string,
   name: u.name,
   email: u.email,
+  phone: u.phone ?? "",
+  location: u.location ?? "",
   role: u.role === "admin" ? "admin" : "user",
 });
 
@@ -24,12 +27,16 @@ export async function register(req: Request, res: Response) {
   if (name.length < 2 || name.length > 60) return fail(res, 400, "Name must be 2 to 60 characters");
   if (!EMAIL_RE.test(email)) return fail(res, 400, "Enter a valid email address");
   if (password.length < 8) return fail(res, 400, "Password must be at least 8 characters");
+  const phone = String(req.body?.phone ?? "").trim();
+  const location = String(req.body?.location ?? "").trim();
+  if (phone.length > 30) return fail(res, 400, "Phone number must be 30 characters or fewer");
+  if (location.length > 200) return fail(res, 400, "Location must be 200 characters or fewer");
 
   if (await User.exists({ email })) return fail(res, 409, "An account with this email already exists");
 
   try {
     const passwordHash = await bcrypt.hash(password, 10);
-    const user = await User.create({ name, email, passwordHash });
+    const user = await User.create({ name, email, passwordHash, phone, location });
     res.status(201).json({ success: true, data: { token: signToken(user.id), user: publicUser(user) } });
   } catch (err) {
     // Race condition: duplicate email created between the check and the insert
@@ -74,5 +81,32 @@ export async function changePassword(req: AuthRequest, res: Response) {
 export async function me(req: AuthRequest, res: Response) {
   const user = await User.findById(req.userId);
   if (!user) return fail(res, 401, "Account no longer exists. Please log in again.");
+  res.json({ success: true, data: { user: publicUser(user) } });
+}
+
+export async function updateProfile(req: AuthRequest, res: Response) {
+  if (!req.userId) return fail(res, 401, "Not authenticated");
+  const user = await User.findById(req.userId);
+  if (!user) return fail(res, 401, "Account no longer exists. Please log in again.");
+
+  const name = req.body?.name !== undefined ? String(req.body.name).trim() : user.name;
+  const phone = req.body?.phone !== undefined ? String(req.body.phone).trim() : (user.phone ?? "");
+  const location = req.body?.location !== undefined ? String(req.body.location).trim() : (user.location ?? "");
+
+  if (name.length < 2 || name.length > 60) return fail(res, 400, "Name must be 2 to 60 characters");
+  if (phone.length > 30) return fail(res, 400, "Phone number must be 30 characters or fewer");
+  if (location.length > 200) return fail(res, 400, "Location must be 200 characters or fewer");
+
+  user.name = name;
+  user.phone = phone;
+  user.location = location;
+  await user.save();
+
+  // Keep user's business profile in sync
+  await BusinessProfile.updateMany(
+    { userId: user._id },
+    { $set: { phone, location } }
+  );
+
   res.json({ success: true, data: { user: publicUser(user) } });
 }

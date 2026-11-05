@@ -1,9 +1,10 @@
-import { AlertTriangle, CheckCircle2, ExternalLink, Globe, Loader2, Sparkles, Store, Trash2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ExternalLink, Globe, Loader2, MapPin, Phone, Sparkles, Store, Trash2 } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import LogoUploader from "../components/LogoUploader";
 import { PageError, PageLoading } from "../components/PageState";
 import { useToast } from "../components/Toast";
+import { useAuth } from "../context/AuthContext";
 import { useBusiness } from "../hooks/useBusiness";
 import { api, getErrorMessage } from "../lib/api";
 import { publicUrl } from "../lib/config";
@@ -35,11 +36,14 @@ function Form({
 }) {
   const navigate = useNavigate();
   const toast = useToast();
+  const { user } = useAuth();
   const [name, setName] = useState(business?.businessName ?? "");
   const [category, setCategory] = useState(business?.category ?? "");
   const [description, setDescription] = useState(business?.description ?? "");
   const [slug, setSlug] = useState(business?.slug ?? "");
   const [slugTouched, setSlugTouched] = useState(mode === "edit");
+  const [phone, setPhone] = useState(business?.phone ?? user?.phone ?? "");
+  const [location, setLocation] = useState(business?.location ?? user?.location ?? "");
   const [isActive, setIsActive] = useState(business?.isActive ?? true);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -63,7 +67,15 @@ function Form({
     }
     setSaving(true);
     try {
-      const payload = { businessName: name, category, description, slug, ...(mode === "edit" ? { isActive } : {}) };
+      const payload = {
+        businessName: name,
+        category,
+        description,
+        slug,
+        phone,
+        location,
+        ...(mode === "edit" ? { isActive } : {}),
+      };
       if (mode === "create") {
         const res = await api.post<{ data: { business: Business } }>("/business", payload);
         setBusiness(res.data.data.business);
@@ -187,6 +199,44 @@ function Form({
           <p className="mt-1 text-[11px] text-slate-400">
             Appears at the top of your mobile bio page right below your store name.
           </p>
+        </div>
+
+        {/* Contact & Location */}
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="biz-phone" className="mb-1.5 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-600">
+              <Phone size={13} className="text-slate-400" /> Phone Number (for Call Button)
+            </label>
+            <input
+              id="biz-phone"
+              type="tel"
+              maxLength={30}
+              placeholder="e.g. +91 98765 43210"
+              className={inputClass}
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+            <p className="mt-1 text-[11px] text-slate-400">
+              Customers can tap this to call your store directly.
+            </p>
+          </div>
+          <div>
+            <label htmlFor="biz-location" className="mb-1.5 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-600">
+              <MapPin size={13} className="text-slate-400" /> Business Location / Address
+            </label>
+            <input
+              id="biz-location"
+              type="text"
+              maxLength={200}
+              placeholder="e.g. Shop 4, Market Road, Mumbai"
+              className={inputClass}
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+            />
+            <p className="mt-1 text-[11px] text-slate-400">
+              Opens Google Maps directions for customers.
+            </p>
+          </div>
         </div>
 
         {/* URL Slug */}

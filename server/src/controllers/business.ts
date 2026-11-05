@@ -2,6 +2,7 @@ import { Response } from "express";
 import { HydratedDocument, Types, isValidObjectId } from "mongoose";
 import { AuthRequest } from "../middleware/auth";
 import { BusinessProfile, IBusiness } from "../models/BusinessProfile";
+import { User } from "../models/User";
 import { DailyStat } from "../models/DailyStat";
 import { deleteImage, uploadLogoBuffer } from "../utils/cloudinary";
 import { SLUG_RE, uniqueSlug } from "../utils/slug";
@@ -35,6 +36,8 @@ export function serializeBusiness(b: BusinessDoc) {
     description: b.description,
     category: b.category,
     slug: b.slug,
+    phone: b.phone ?? "",
+    location: b.location ?? "",
     logoUrl: b.logoUrl,
     links,
     scanCount: b.scanCount,
@@ -73,6 +76,8 @@ interface Fields {
   description?: string;
   category?: string;
   slug?: string;
+  phone?: string;
+  location?: string;
   isActive?: boolean;
 }
 
@@ -101,6 +106,16 @@ function readFields(body: Body, partial: boolean): { error: string } | { value: 
     }
     value.slug = s;
   }
+  if (body.phone !== undefined) {
+    const p = String(body.phone).trim();
+    if (p.length > 30) return { error: "Phone number must be 30 characters or fewer" };
+    value.phone = p;
+  }
+  if (body.location !== undefined) {
+    const l = String(body.location).trim();
+    if (l.length > 200) return { error: "Location must be 200 characters or fewer" };
+    value.location = l;
+  }
   if (typeof body.isActive === "boolean") value.isActive = body.isActive;
   return { value };
 }
@@ -123,12 +138,18 @@ export async function createBusiness(req: AuthRequest, res: Response) {
     slug = await uniqueSlug(v.businessName as string);
   }
 
+  const user = await User.findById(userId);
+  const phone = v.phone !== undefined ? v.phone : (user?.phone ?? "");
+  const location = v.location !== undefined ? v.location : (user?.location ?? "");
+
   const biz = new BusinessProfile({
     userId,
     businessName: v.businessName,
     description: v.description ?? "",
     category: v.category ?? "",
     slug,
+    phone,
+    location,
   });
   if (!(await saveWithSlugCheck(biz, res))) return;
   res.status(201).json({ success: true, data: { business: serializeBusiness(biz) } });

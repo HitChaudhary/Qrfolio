@@ -55,6 +55,8 @@ const userDto = (u: IUser) => ({
   id: String(u._id),
   name: u.name,
   email: u.email,
+  phone: u.phone ?? "",
+  location: u.location ?? "",
   role: u.role === "admin" ? "admin" : "user",
   isActive: u.isActive !== false,
   createdAt: u.createdAt,

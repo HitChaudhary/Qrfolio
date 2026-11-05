@@ -1,5 +1,5 @@
-import { Loader2, Lock, LogOut, ShieldCheck, User } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { Loader2, Lock, LogOut, MapPin, Phone, ShieldCheck, User } from "lucide-react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../components/Toast";
 import { useAuth } from "../context/AuthContext";
@@ -7,7 +7,7 @@ import { api, getErrorMessage } from "../lib/api";
 import { cardClass, dangerBtn, inputClass, primaryBtn } from "../lib/ui";
 
 export default function Settings() {
-  const { user, logout } = useAuth();
+  const { user, logout, updateProfile } = useAuth();
   const navigate = useNavigate();
   const toast = useToast();
   const [current, setCurrent] = useState("");
@@ -15,6 +15,37 @@ export default function Settings() {
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [profileName, setProfileName] = useState(user?.name || "");
+  const [profilePhone, setProfilePhone] = useState(user?.phone || "");
+  const [profileLocation, setProfileLocation] = useState(user?.location || "");
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [profileError, setProfileError] = useState("");
+
+  useEffect(() => {
+    if (user) {
+      setProfileName(user.name || "");
+      setProfilePhone(user.phone || "");
+      setProfileLocation(user.location || "");
+    }
+  }, [user]);
+
+  async function onSaveProfile(e: FormEvent) {
+    e.preventDefault();
+    setProfileError("");
+    setSavingProfile(true);
+    try {
+      await updateProfile({
+        name: profileName,
+        phone: profilePhone,
+        location: profileLocation,
+      });
+      toast.show("Profile updated successfully");
+    } catch (err) {
+      setProfileError(getErrorMessage(err));
+    } finally {
+      setSavingProfile(false);
+    }
+  }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -51,22 +82,72 @@ export default function Settings() {
         </p>
       </div>
 
-      <div className={cardClass}>
-        <div className="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
+      <form onSubmit={onSaveProfile} className={`${cardClass} space-y-4`}>
+        <div className="flex items-center gap-2 mb-2 pb-3 border-b border-slate-100">
           <User size={18} className="text-slate-900" />
-          <h2 className="font-display font-black text-slate-950 text-base">Account Identity</h2>
+          <h2 className="font-display font-black text-slate-950 text-base">Account Profile</h2>
         </div>
-        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-          <div className="rounded-2xl bg-slate-50 p-3.5 border border-slate-200/80">
-            <dt className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Account Name</dt>
-            <dd className="mt-1 font-bold text-slate-950 text-sm">{user?.name}</dd>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="profileName" className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-600">
+              Your Name / Business Name
+            </label>
+            <input
+              id="profileName"
+              type="text"
+              required
+              className={inputClass}
+              value={profileName}
+              onChange={(e) => setProfileName(e.target.value)}
+            />
           </div>
-          <div className="rounded-2xl bg-slate-50 p-3.5 border border-slate-200/80">
-            <dt className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Email Address</dt>
-            <dd className="mt-1 font-bold text-slate-950 text-sm truncate">{user?.email}</dd>
+          <div>
+            <label htmlFor="profileEmail" className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-600">
+              Email Address
+            </label>
+            <input
+              id="profileEmail"
+              type="email"
+              disabled
+              className={`${inputClass} bg-slate-100/70 text-slate-500 cursor-not-allowed`}
+              value={user?.email || ""}
+            />
           </div>
-        </dl>
-      </div>
+          <div>
+            <label htmlFor="profilePhone" className="mb-1.5 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-600">
+              <Phone size={13} className="text-slate-400" /> Phone Number
+            </label>
+            <input
+              id="profilePhone"
+              type="tel"
+              placeholder="e.g. +91 98765 43210"
+              className={inputClass}
+              value={profilePhone}
+              onChange={(e) => setProfilePhone(e.target.value)}
+            />
+          </div>
+          <div>
+            <label htmlFor="profileLocation" className="mb-1.5 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-600">
+              <MapPin size={13} className="text-slate-400" /> Business Location / Address
+            </label>
+            <input
+              id="profileLocation"
+              type="text"
+              placeholder="e.g. Shop 4, Market Road, Mumbai"
+              className={inputClass}
+              value={profileLocation}
+              onChange={(e) => setProfileLocation(e.target.value)}
+            />
+          </div>
+        </div>
+        {profileError && <p role="alert" className="rounded-2xl bg-rose-50 border border-rose-200 p-3 text-xs font-semibold text-rose-700">{profileError}</p>}
+        <div className="pt-2">
+          <button type="submit" disabled={savingProfile} className={primaryBtn}>
+            {savingProfile && <Loader2 size={15} className="animate-spin mr-1" />}
+            Save Changes
+          </button>
+        </div>
+      </form>
 
       <form onSubmit={onSubmit} className={`${cardClass} space-y-4`}>
         <div className="flex items-center gap-2 mb-2 pb-3 border-b border-slate-100">

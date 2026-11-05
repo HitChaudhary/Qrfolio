@@ -444,7 +444,7 @@ function AssistantView({
         </div>
       </div>
 
-      {/* Primary Action: Combined ⭐ Write a Google Review */}
+      {/* Primary Action: Combined ⭐ Copy & Give Review */}
       <div className="rounded-3xl border-2 border-slate-900 bg-white p-5 shadow-sm space-y-3.5">
         <button
           type="button"
@@ -452,7 +452,7 @@ function AssistantView({
           className="w-full inline-flex items-center justify-center gap-2.5 rounded-full bg-slate-950 px-6 py-4 text-sm sm:text-base font-black text-white shadow-lg hover:bg-slate-900 active:scale-95 transition-all cursor-pointer group"
         >
           <Star size={18} className="fill-[#b8de20] text-[#b8de20] group-hover:scale-110 transition-transform shrink-0" aria-hidden="true" />
-          <span>Write a Google Review</span>
+          <span>Copy & Give Review</span>
           <ExternalLink size={16} className="text-slate-400 group-hover:text-white transition-colors" />
         </button>
 
@@ -475,7 +475,7 @@ function AssistantView({
             <span>How it works:</span>
           </div>
           <ol className="list-decimal list-inside space-y-1 text-slate-600 pl-1 leading-relaxed text-[11px]">
-            <li>Tap <strong>Write a Google Review</strong>.</li>
+            <li>Tap <strong>Copy & Give Review</strong>.</li>
             <li>Your review is copied automatically & Google opens in a new tab.</li>
             <li>Select 5 stars and paste your review!</li>
           </ol>

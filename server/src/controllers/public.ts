@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { Types, isValidObjectId } from "mongoose";
 import { BusinessProfile } from "../models/BusinessProfile";
+import { IUser } from "../models/User";
 import { SLUG_RE } from "../utils/slug";
 import { recordClick, recordScan } from "../utils/stats";
 
@@ -12,9 +13,11 @@ export async function getPublicProfile(req: Request, res: Response) {
   const slug = String(req.params.slug ?? "").toLowerCase();
   if (slug.length > 40 || !SLUG_RE.test(slug)) return notAvailable(res);
 
-  const biz = await BusinessProfile.findOne({ slug, isActive: true }).select(
-    "businessName description category logoUrl links"
-  );
+  const biz = await BusinessProfile.findOne({ slug, isActive: true })
+    .populate<{ userId: IUser }>("userId", "phone location")
+    .select("businessName description category logoUrl links phone location userId");
+
+
   if (!biz) return notAvailable(res);
 
   // Analytics must never break the page
@@ -30,6 +33,8 @@ export async function getPublicProfile(req: Request, res: Response) {
       description: biz.description,
       category: biz.category,
       logoUrl: biz.logoUrl,
+      phone: biz.phone || biz.userId?.phone || "",
+      location: biz.location || biz.userId?.location || "",
       links: Array.from(biz.links)
         .filter((l) => l.isActive)
         .sort((a, b) => a.position - b.position)
@@ -64,6 +69,7 @@ export async function goToLink(req: Request, res: Response) {
   recordClick(biz._id, link._id as Types.ObjectId).catch((err) =>
     console.error("[stats] click failed:", (err as Error).message)
   );
+
   res.set("Cache-Control", "no-store");
   res.redirect(302, link.url);
 }

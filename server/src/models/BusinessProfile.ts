@@ -17,6 +17,8 @@ export interface IBusiness {
   description: string;
   category: string;
   slug: string;
+  phone?: string;
+  location?: string;
   logoUrl: string;
   logoPublicId: string;
   links: Types.DocumentArray<ILink>;
@@ -44,6 +46,8 @@ const businessSchema = new Schema<IBusiness>(
     description: { type: String, default: "", trim: true, maxlength: 300 },
     category: { type: String, default: "", trim: true, maxlength: 40 },
     slug: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    phone: { type: String, default: "", trim: true, maxlength: 30 },
+    location: { type: String, default: "", trim: true, maxlength: 200 },
     logoUrl: { type: String, default: "" },
     logoPublicId: { type: String, default: "" },
     links: { type: [linkSchema], default: [] },

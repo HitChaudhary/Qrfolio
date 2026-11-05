@@ -5,6 +5,8 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  phone?: string;
+  location?: string;
   role: "user" | "admin";
 }
 
@@ -12,7 +14,8 @@ interface AuthState {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<User>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string, phone?: string, location?: string) => Promise<void>;
+  updateProfile: (data: { name?: string; phone?: string; location?: string }) => Promise<User>;
   logout: () => void;
 }
 
@@ -48,14 +51,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return res.data.data.user;
   }, []);
 
-  const register = useCallback(async (name: string, email: string, password: string) => {
+  const register = useCallback(async (name: string, email: string, password: string, phone?: string, location?: string) => {
     const res = await api.post<{ data: { token: string; user: User } }>("/auth/register", {
       name,
       email,
       password,
+      phone,
+      location,
     });
     setToken(res.data.data.token);
     setUser(res.data.data.user);
+  }, []);
+
+  const updateProfile = useCallback(async (data: { name?: string; phone?: string; location?: string }) => {
+    const res = await api.put<{ data: { user: User } }>("/auth/profile", data);
+    setUser(res.data.data.user);
+    return res.data.data.user;
   }, []);
 
   const logout = useCallback(() => {
@@ -64,8 +75,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, loading, login, register, logout }),
-    [user, loading, login, register, logout]
+    () => ({ user, loading, login, register, updateProfile, logout }),
+    [user, loading, login, register, updateProfile, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,4 +1,4 @@
-import { ArrowRight, CheckCircle2, Loader2, Lock, Mail, Store, User } from "lucide-react";
+import { ArrowRight, CheckCircle2, Loader2, Lock, Mail, MapPin, Phone, Store, User } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import AuthShell, { buttonClass, inputClass } from "../components/AuthShell";
@@ -11,6 +11,8 @@ export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
+  const [location, setLocation] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -25,7 +27,7 @@ export default function Register() {
     }
     setSubmitting(true);
     try {
-      await register(name, email, password);
+      await register(name, email, password, phone, location);
       navigate("/dashboard", { replace: true });
     } catch (err) {
       setError(getErrorMessage(err));
@@ -99,6 +101,36 @@ export default function Register() {
             <CheckCircle2 size={12} className={password.length >= 8 ? "text-emerald-600" : "text-slate-400"} />
             <span>Must contain at least 8 characters</span>
           </div>
+        </div>
+
+        <div>
+          <label htmlFor="phone" className="mb-1.5 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-600">
+            <Phone size={13} className="text-slate-400" /> Phone Number
+          </label>
+          <input
+            id="phone"
+            type="tel"
+            autoComplete="tel"
+            placeholder="e.g. +91 98765 43210"
+            className={inputClass}
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="location" className="mb-1.5 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-600">
+            <MapPin size={13} className="text-slate-400" /> Business Location / Address
+          </label>
+          <input
+            id="location"
+            type="text"
+            autoComplete="street-address"
+            placeholder="e.g. Shop 4, Market Road, Mumbai"
+            className={inputClass}
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+          />
         </div>
 
         {error && (

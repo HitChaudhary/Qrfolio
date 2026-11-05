@@ -15,6 +15,8 @@ export interface Business {
   description: string;
   category: string;
   slug: string;
+  phone?: string;
+  location?: string;
   logoUrl: string;
   links: BusinessLink[];
   scanCount: number;
@@ -32,6 +34,8 @@ export interface PublicLink {
 
 export interface PublicProfileData {
   profileId: string;
+  phone?: string;
+  location?: string;
   businessName: string;
   description: string;
   category: string;
@@ -63,6 +67,8 @@ export interface AdminBusinessSummary {
   id: string;
   businessName: string;
   slug: string;
+  phone?: string;
+  location?: string;
   category: string;
   logoUrl: string;
   isActive: boolean;
@@ -103,6 +109,8 @@ export interface AdminBusinessDetailData {
     description: string;
     category: string;
     slug: string;
+  phone?: string;
+  location?: string;
     logoUrl: string;
     isActive: boolean;
     createdAt: string;
@@ -124,6 +132,8 @@ export interface AdminAnalyticsData {
     id: string;
     businessName: string;
     slug: string;
+  phone?: string;
+  location?: string;
     isActive: boolean;
     scans: number;
     clicks: number;
